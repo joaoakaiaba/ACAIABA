@@ -5,6 +5,7 @@ import { signToken } from "@/server/auth/jwt";
 import { setSessionCookie } from "@/server/auth/session";
 import { z } from "zod";
 import { logger } from "@/lib/config/logging";
+import { isActiveStatus } from "@/lib/auth/authorize";
 
 const loginSchema = z.object({
   email: z.string().email("E-mail inválido").toLowerCase().trim(),
@@ -48,6 +49,15 @@ export async function POST(request: Request) {
       );
     }
 
+    // Reject accounts that are not ACTIVE (SUSPENDED / INACTIVE / PENDING).
+    if (!isActiveStatus(user.status)) {
+      logger.warn(`Login blocked: account not active for email ${email} (status=${user.status})`);
+      return NextResponse.json(
+        { error: "Seu acesso está bloqueado. Entre em contato com o suporte." },
+        { status: 403 }
+      );
+    }
+
     // Sign session token
     const token = signToken({
       userId: user.id,
@@ -74,6 +84,12 @@ export async function POST(request: Request) {
       sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
+    });
+
+    // Record the login timestamp on the user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
     });
 
     // Log successful login to AuditLog

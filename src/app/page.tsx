@@ -38,6 +38,13 @@ async function getHomePageData() {
         stock: totalStock,
         isFeatured: prod.isFeatured,
         categorySlug: prod.category.slug,
+        variants: prod.variants.map((v) => ({
+          id: v.id,
+          sku: v.sku,
+          size: v.size,
+          color: v.color,
+          stock: v.inventory?.quantity ?? 0,
+        })),
       };
     });
 

@@ -6,6 +6,14 @@ import { Heart, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 
+export interface ProductVariantSummary {
+  id: string;
+  sku: string;
+  size: string | null;
+  color: string | null;
+  stock: number;
+}
+
 export interface ProductCardProps {
   id: string;
   name: string;
@@ -17,6 +25,7 @@ export interface ProductCardProps {
   stock: number;
   isFeatured?: boolean;
   tags?: string[];
+  variants?: ProductVariantSummary[];
 }
 
 export default function ProductCard({
@@ -29,7 +38,8 @@ export default function ProductCard({
   imageUrl,
   stock,
   isFeatured = false,
-  tags = []
+  tags = [],
+  variants = []
 }: ProductCardProps) {
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useFavorites();
@@ -45,15 +55,18 @@ export default function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     if (stock > 0) {
+      // Use a real product variant (with a real variant id) so the checkout
+      // can create a genuine order against the database.
+      const inStockVariant = variants.find((v) => v.stock > 0) || variants[0];
       addToCart({
-        id: `${id}-default`, // Simple sku key for cart
+        id: inStockVariant?.id || `${id}-default`,
         productId: id,
         name,
-        sku: `${slug.toUpperCase()}-DEF`,
+        sku: inStockVariant?.sku || `${slug.toUpperCase()}-DEF`,
         price,
         promotionalPrice,
-        size: "M", // default size
-        color: "Padrão", // default color
+        size: inStockVariant?.size ?? null,
+        color: inStockVariant?.color ?? null,
         imageUrl,
       }, 1);
     }

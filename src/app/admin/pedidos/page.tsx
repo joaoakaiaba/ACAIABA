@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/config/prisma";
 import { ShoppingBag, Eye, Calendar, User, Search, RefreshCw } from "lucide-react";
+import { requireAdmin } from "@/server/auth/guard";
 
 async function getAdminOrders() {
   try {
@@ -30,6 +31,7 @@ async function getAdminOrders() {
 }
 
 export default async function AdminOrdersPage() {
+  await requireAdmin();
   const orders = await getAdminOrders();
 
   return (

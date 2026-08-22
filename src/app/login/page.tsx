@@ -1,38 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ShieldAlert } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isAdmin } = useAuth();
+
+  const redirectTo = searchParams.get("redirect") || "";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Simulated login endpoint integration to avoid hardcoded credentials but have functional UX
-    setTimeout(() => {
-      setLoading(false);
-      if (email === "admin@acaiaba.com" && password === "acaiaba_admin_2026") {
-        // Simple routing for testing
-        router.push("/admin");
-      } else {
-        setError("Credenciais inválidas. Use o usuário administrador do seed para testar.");
-      }
-    }, 1000);
+    const result = await login(email, password);
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.error || "Falha ao entrar.");
+      return;
+    }
+
+    // Redirect to the intended destination, or to the admin/conta area otherwise.
+    if (redirectTo && redirectTo.startsWith("/")) {
+      router.push(redirectTo);
+      return;
+    }
+    router.push(isAdmin ? "/admin" : "/conta");
   };
 
   return (
     <div className="mx-auto max-w-md px-4 py-24">
       <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm space-y-6">
-        
+
         <div className="text-center">
           <span className="bg-amber-600 px-3 py-1 text-sm font-black tracking-wider text-white uppercase rounded-md inline-block">
             ACAIABA

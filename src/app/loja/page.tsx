@@ -113,6 +113,13 @@ async function getCatalogData(params: SearchParams) {
         imageUrl: prod.images[0]?.url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
         stock: totalStock,
         isFeatured: prod.isFeatured,
+        variants: prod.variants.map((v) => ({
+          id: v.id,
+          sku: v.sku,
+          size: v.size,
+          color: v.color,
+          stock: v.inventory?.quantity ?? 0,
+        })),
       };
     });
 

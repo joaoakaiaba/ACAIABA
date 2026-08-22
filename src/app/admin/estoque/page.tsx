@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/config/prisma";
 import { AlertTriangle, TrendingUp, SlidersHorizontal, Edit2 } from "lucide-react";
+import { requireAdmin } from "@/server/auth/guard";
 
 async function getAdminStock() {
   try {
@@ -35,6 +36,7 @@ async function getAdminStock() {
 }
 
 export default async function AdminStockPage() {
+  await requireAdmin();
   const stock = await getAdminStock();
 
   return (

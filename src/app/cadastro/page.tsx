@@ -2,28 +2,45 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { User, Mail, Lock, Phone } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { User, Mail, Lock, Phone, ShieldAlert } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { register } = useAuth();
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      alert("Cadastro simulado com sucesso!");
-    }, 1000);
+
+    const result = await register({
+      name,
+      email,
+      phone,
+      password,
+    });
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.error || "Falha ao criar conta.");
+      return;
+    }
+
+    router.push("/conta");
   };
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
       <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm space-y-6">
-        
+
         <div className="text-center">
           <span className="bg-amber-600 px-3 py-1 text-sm font-black tracking-wider text-white uppercase rounded-md inline-block">
             ACAIABA
@@ -33,6 +50,13 @@ export default function RegisterPage() {
           </h1>
           <p className="text-xs text-gray-500 mt-1">Preencha os campos para se registrar</p>
         </div>
+
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-100 p-4 text-xs font-semibold text-red-700 flex items-start space-x-2">
+            <ShieldAlert className="h-4 w-4 text-red-500 flex-shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>

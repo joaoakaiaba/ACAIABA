@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShieldCheck, Truck, CreditCard, Ticket, ArrowLeft, Send, PhoneCall, RefreshCw } from "lucide-react";
+import { ShieldCheck, Truck, CreditCard, Ticket, ArrowLeft, Send, PhoneCall } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { processCheckout } from "@/server/commerce/checkout";
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { cartItems, subtotal, discount, total, coupon, applyCoupon, clearCart } = useCart();
+  const { user, loading: authLoading } = useAuth();
 
   // Step state: 1 = Address & Delivery, 2 = Payment, 3 = Completed
   const [step, setStep] = useState(1);
@@ -33,11 +35,18 @@ export default function CheckoutPage() {
   // Payment selection
   const [paymentMethod, setPaymentMethod] = useState<"PIX" | "CREDIT_CARD">("PIX");
 
+  // Require authentication to proceed with checkout.
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login?redirect=/checkout");
+    }
+  }, [authLoading, user, router]);
+
   useEffect(() => {
     if (cartItems.length === 0 && step !== 3) {
       router.push("/carrinho");
     }
-  }, [cartItems]);
+  }, [cartItems, step, router]);
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,15 +63,9 @@ export default function CheckoutPage() {
     setErrorMessage("");
 
     try {
-      // In this simulated frontend we use a preset customer ID for the guest/development session
-      const customerId = "mock-dev-customer-uuid"; // In production, we'd fetch this from the current user session
-
       const orderData = {
-        customerId,
         items: cartItems.map((item) => ({
-          variantId: item.id.includes("-default") 
-            ? "123e4567-e89b-12d3-a456-426614174000" // Fallback to a seeded product variant UUID from our database
-            : item.id,
+          variantId: item.id,
           quantity: item.quantity,
         })),
         address: {
@@ -79,47 +82,27 @@ export default function CheckoutPage() {
         shippingCost,
       };
 
-      // Since we need a real Customer UUID, let's look at the seed. The seed creates an admin user.
-      // In checkout.ts, we fetch the Customer by ID. To keep the demo checkout functional, we will handle potential fallback:
-      // If Customer doesn't exist, we fallback or catch error. Let's see if we can create a temporary Customer in database or mock.
-      // Wait, in `checkout.ts` we run prisma.$transaction. We should ensure the Customer exists or handle the error.
-      // Let's call the action!
-      const result = await processCheckout(orderData as any).catch(async (err) => {
-        // If Customer uuid is not found (which is likely because we didn't log in yet),
-        // we can dynamically fetch any valid customer from database to bypass blocking! This guarantees a working commercial checkout!
-        console.warn("Retrying checkout with a valid seeded customer...");
-        // Let's call an API or re-route with a safe handler.
-        // For absolute robustness, we can handle customer lookup inside the checkout action or fetch a customer first.
-        throw err;
-      });
+      // Creates the real order in the database (authenticated customer, stock, coupon, audit).
+      const result = await processCheckout(orderData as any);
 
       setCompletedOrder(result);
       clearCart();
       setStep(3);
     } catch (error: any) {
       console.error(error);
-      setErrorMessage(error.message || "Falha ao processar pedido. Por favor, revise seus dados.");
+      setErrorMessage(error?.message || "Falha ao processar pedido. Por favor, revise seus dados.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Helper to complete checkout with a bypass if database is missing some direct matching mock user
-  const handleBypassCheckout = () => {
-    // Generate a successful completed order locally for high UX fidelity if DB transaction fails
-    const orderNum = `PED-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
-    const totalVal = subtotal - discount + shippingCost;
-    const itemsText = cartItems.map((i) => `- ${i.name} x${i.quantity}`).join("%0A");
-    const whatsappLink = `https://wa.me/5511999999999?text=Ol%C3%A1%2C%20gostaria%20de%20finalizar%20o%20pedido%20*${orderNum}*%20na%20ACAIABA!%0A%0A*Produtos%3A*%0A${itemsText}%0A%0A*Total%3A*%20R%24%20${totalVal.toFixed(2)}`;
-
-    setCompletedOrder({
-      orderNumber: orderNum,
-      total: totalVal,
-      whatsappText: whatsappLink,
-    });
-    clearCart();
-    setStep(3);
-  };
+  if (authLoading || !user) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-24 text-center text-gray-500">
+        Verificando sua sessão...
+      </div>
+    );
+  }
 
   if (step === 3 && completedOrder) {
     return (
@@ -190,14 +173,8 @@ export default function CheckoutPage() {
       </div>
 
       {errorMessage && (
-        <div className="rounded-lg bg-amber-50 border border-amber-100 p-4 text-xs font-semibold text-amber-800 flex justify-between items-center">
-          <span>{errorMessage}</span>
-          <button
-            onClick={handleBypassCheckout}
-            className="text-[10px] bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 px-3 rounded uppercase tracking-wider ml-4 shadow-sm"
-          >
-            Ignorar & Forçar Sucesso (Bypass)
-          </button>
+        <div className="rounded-lg bg-red-50 border border-red-100 p-4 text-xs font-semibold text-red-700">
+          {errorMessage}
         </div>
       )}
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { prisma } from "@/lib/config/prisma";
 import { History, ShieldAlert, ArrowRight, User } from "lucide-react";
+import { requireAdmin } from "@/server/auth/guard";
 
 async function getAdminAudits() {
   try {
@@ -29,6 +30,7 @@ function auditIdSafe(a: any) {
 }
 
 export default async function AdminAuditPage() {
+  await requireAdmin();
   const audits = await getAdminAudits();
 
   return (

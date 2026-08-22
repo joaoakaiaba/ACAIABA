@@ -4,6 +4,7 @@ import { prisma } from "@/lib/config/prisma";
 import { OrderStatus, PaymentStatus, PaymentMethod, InventoryMovementType } from "@prisma/client";
 import { AppError } from "@/lib/config/errors";
 import { logger } from "@/lib/config/logging";
+import { getActiveSession } from "@/server/auth/session";
 
 interface CheckoutItem {
   variantId: string;
@@ -22,7 +23,6 @@ interface AddressInput {
 }
 
 interface CheckoutInput {
-  customerId: string;
   items: CheckoutItem[];
   address: AddressInput;
   couponCode?: string;
@@ -31,9 +31,15 @@ interface CheckoutInput {
 }
 
 export async function processCheckout(input: CheckoutInput) {
-  logger.info("Starting server-side checkout process", { customerId: input.customerId });
+  const { items, address, couponCode, paymentMethod, shippingCost } = input;
 
-  const { customerId, items, address, couponCode, paymentMethod, shippingCost } = input;
+  // The customer is derived from the authenticated, active session — never trusted from the client.
+  const session = await getActiveSession();
+  if (!session) {
+    throw new AppError("AUTHENTICATION", "Você precisa estar autenticado para finalizar a compra.", 401);
+  }
+
+  logger.info("Starting server-side checkout process", { userId: session.userId });
 
   if (!items || items.length === 0) {
     throw new AppError("BUSINESS", "Seu carrinho está vazio. Adicione itens antes de finalizar a compra.");
@@ -42,14 +48,14 @@ export async function processCheckout(input: CheckoutInput) {
   // Run everything inside an atomic transaction to ensure absolute financial and inventory integrity
   try {
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Fetch and validate Customer
+      // 1. Fetch and validate Customer for the authenticated user
       const customer = await tx.customer.findUnique({
-        where: { id: customerId },
+        where: { userId: session.userId },
         include: { user: true },
       });
 
       if (!customer) {
-        throw new AppError("NOT_FOUND", "Cliente não encontrado.");
+        throw new AppError("NOT_FOUND", "Cliente não encontrado. Verifique sua conta.");
       }
 
       // 2. Validate Coupon server-side (if provided)

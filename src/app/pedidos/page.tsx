@@ -1,30 +1,94 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, ChevronRight, Eye } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useRequireAuth } from "@/lib/auth/useRequireAuth";
+
+interface Order {
+  id: string;
+  orderNumber: string;
+  date: string;
+  total: number;
+  status: string;
+  itemsCount: number;
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pendente",
+  AWAITING_PAYMENT: "Aguardando Pagamento",
+  PAID: "Pago",
+  PROCESSING: "Em Processamento",
+  SHIPPED: "Enviado",
+  DELIVERED: "Entregue",
+  CANCELLED: "Cancelado",
+  REFUNDED: "Reembolsado",
+};
+
+function statusStyle(status: string): string {
+  if (status === "PAID" || status === "DELIVERED" || status === "PROCESSING") {
+    return "text-emerald-700 bg-emerald-50 border-emerald-100";
+  }
+  if (status === "CANCELLED" || status === "REFUNDED") {
+    return "text-red-700 bg-red-50 border-red-100";
+  }
+  return "text-amber-700 bg-amber-50 border-amber-100";
+}
 
 export default function OrdersPage() {
-  const orders = [
-    {
-      id: "PED-928374",
-      date: "21/08/2026",
-      total: 249.90,
-      status: "Pago",
-      statusColor: "text-emerald-700 bg-emerald-50 border-emerald-100",
-      itemsCount: 1,
-    },
-  ];
+  const { user } = useAuth();
+  const { loading } = useRequireAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (loading || !user) return;
+
+    const loadOrders = async () => {
+      try {
+        const res = await fetch("/api/orders", { method: "GET" });
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data?.error || "Falha ao carregar pedidos.");
+        } else {
+          setOrders(data.orders ?? []);
+        }
+      } catch (err) {
+        console.error("Failed to load orders:", err);
+        setError("Erro de conexão ao carregar seus pedidos.");
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    loadOrders();
+  }, [loading, user]);
+
+  if (loading || !user) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-16 text-center text-gray-500">
+        Carregando seus pedidos...
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-8">
-      
+
       <div className="border-b border-gray-100 pb-5">
         <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">Meus Pedidos</h1>
         <p className="text-sm text-gray-500 mt-1">Acompanhe suas compras e histórico de transações.</p>
       </div>
 
-      {orders.length > 0 ? (
+      {ordersLoading ? (
+        <div className="text-center py-20 text-gray-500">Carregando...</div>
+      ) : error ? (
+        <div className="rounded-2xl border border-red-100 bg-red-50 py-16 text-center px-4 max-w-2xl mx-auto text-sm font-semibold text-red-700">
+          {error}
+        </div>
+      ) : orders.length > 0 ? (
         <div className="space-y-4">
           {orders.map((order) => (
             <div
@@ -33,33 +97,22 @@ export default function OrdersPage() {
             >
               <div>
                 <div className="flex items-center space-x-3">
-                  <span className="font-extrabold text-slate-950 font-mono text-sm uppercase">{order.id}</span>
-                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded border uppercase tracking-wider ${order.statusColor}`}>
-                    {order.status}
+                  <span className="font-extrabold text-slate-950 font-mono text-sm uppercase">{order.orderNumber}</span>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-1 rounded border uppercase tracking-wider ${statusStyle(order.status)}`}>
+                    {STATUS_LABELS[order.status] || order.status}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500 mt-2 font-semibold">
-                  <span>Data: {order.date}</span>
+                  <span>Data: {new Date(order.date).toLocaleDateString("pt-BR")}</span>
                   <span>Quantidade: {order.itemsCount} {order.itemsCount === 1 ? "item" : "itens"}</span>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between sm:justify-end gap-6 sm:space-x-8">
-                <div className="text-right">
-                  <p className="text-sm font-extrabold text-slate-950">
-                    R$ {order.total.toFixed(2)}
-                  </p>
-                </div>
-
-                <Link
-                  href={`/pedidos/${order.id}`}
-                  className="h-9 px-4 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 hover:text-amber-600 font-bold text-xs uppercase tracking-wider flex items-center justify-center space-x-1.5 transition-all shadow-sm"
-                >
-                  <Eye className="h-4 w-4" />
-                  <span>Detalhes</span>
-                </Link>
+              <div className="text-left sm:text-right">
+                <p className="text-sm font-extrabold text-slate-950">
+                  R$ {order.total.toFixed(2)}
+                </p>
               </div>
-
             </div>
           ))}
         </div>

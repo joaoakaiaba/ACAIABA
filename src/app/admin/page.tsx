@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/config/prisma";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
+import { requireAdmin } from "@/server/auth/guard";
 import {
   TrendingUp,
   ShoppingBag,
@@ -79,6 +80,7 @@ async function getAdminMetrics() {
 }
 
 export default async function AdminDashboardPage() {
+  await requireAdmin();
   const {
     totalRevenue,
     totalOrders,

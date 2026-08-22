@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/config/prisma";
 import { Plus, Edit, Copy, Archive, CheckCircle, SlidersHorizontal, Package } from "lucide-react";
+import { requireAdmin } from "@/server/auth/guard";
 
 async function getAdminProducts() {
   try {
@@ -38,6 +39,7 @@ async function getAdminProducts() {
 }
 
 export default async function AdminProductsPage() {
+  await requireAdmin();
   const products = await getAdminProducts();
 
   return (

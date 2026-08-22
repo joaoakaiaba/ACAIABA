@@ -3,9 +3,10 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, User, Heart, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, User, Heart, ShoppingBag, Menu, X, LogOut } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -14,9 +15,15 @@ export default function Header() {
   
   const { cartItems } = useCart();
   const { favorites } = useFavorites();
+  const { user, isAuthenticated, isAdmin, logout } = useAuth();
   
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const favoritesCount = favorites.length;
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/");
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,14 +119,38 @@ export default function Header() {
             )}
           </Link>
 
-          {/* Account link */}
-          <Link
-            href="/login"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-all"
-            title="Minha Conta"
-          >
-            <User className="h-5 w-5" />
-          </Link>
+          {/* Account / user area */}
+          {isAuthenticated ? (
+            <>
+              <Link
+                href={isAdmin ? "/admin" : "/conta"}
+                className="flex h-10 items-center gap-2 rounded-full bg-amber-50 border border-amber-100 px-2.5 sm:px-3 text-gray-800 hover:bg-amber-100 transition-all"
+                title="Minha Conta"
+              >
+                <span className="h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-white text-xs font-bold">
+                  {(user?.name?.[0] || "U").toUpperCase()}
+                </span>
+                <span className="hidden sm:inline text-xs font-bold max-w-[90px] truncate">
+                  {user?.name?.split(" ")[0] || "Conta"}
+                </span>
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all"
+                title="Sair"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-all"
+              title="Entrar"
+            >
+              <User className="h-5 w-5" />
+            </Link>
+          )}
         </div>
       </div>
 
