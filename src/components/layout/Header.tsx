@@ -7,6 +7,7 @@ import { Search, User, Heart, ShoppingBag, Menu, X, LogOut } from "lucide-react"
 import { useCart } from "@/context/CartContext";
 import { useFavorites } from "@/context/FavoritesContext";
 import { useAuth } from "@/context/AuthContext";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -43,14 +44,14 @@ export default function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-100 dark:border-slate-700 bg-white shadow-sm dark:bg-slate-900 dark:shadow-slate-900/40">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         
         {/* Mobile menu toggle */}
         <button
           type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-md text-gray-500 hover:bg-gray-50 lg:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 lg:hidden"
           aria-label="Abrir menu"
         >
           {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -69,14 +70,14 @@ export default function Header() {
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm font-medium text-gray-700 hover:text-amber-600 transition-colors"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors"
             >
               {link.name}
             </Link>
           ))}
         </nav>
 
-        {/* Search, Favorites, Cart & User Profile Actions */}
+        {/* Search, Favorites, Cart, Theme & User Profile Actions */}
         <div className="flex items-center space-x-4">
           
           {/* Desktop Search bar */}
@@ -86,15 +87,18 @@ export default function Header() {
               placeholder="Buscar produtos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64 rounded-full border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white transition-all"
+              className="w-64 rounded-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900 transition-all"
             />
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
           </form>
 
+          {/* Theme toggle */}
+          <ThemeToggle />
+
           {/* Favorites link */}
           <Link
             href="/favoritos"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-all"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
             title="Favoritos"
           >
             <Heart className="h-5 w-5" />
@@ -108,7 +112,7 @@ export default function Header() {
           {/* Cart link */}
           <Link
             href="/carrinho"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-all"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
             title="Carrinho"
           >
             <ShoppingBag className="h-5 w-5" />
@@ -124,7 +128,7 @@ export default function Header() {
             <>
               <Link
                 href={isAdmin ? "/admin" : "/conta"}
-                className="flex h-10 items-center gap-2 rounded-full bg-amber-50 border border-amber-100 px-2.5 sm:px-3 text-gray-800 hover:bg-amber-100 transition-all"
+                className="flex h-10 items-center gap-2 rounded-full bg-amber-50 border border-amber-100 px-2.5 sm:px-3 text-gray-800 dark:text-gray-100 hover:bg-amber-100 transition-all"
                 title="Minha Conta"
               >
                 <span className="h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-white text-xs font-bold">
@@ -136,7 +140,7 @@ export default function Header() {
               </Link>
               <button
                 onClick={handleLogout}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-red-50 hover:text-red-600 transition-all"
+                className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-600 transition-all"
                 title="Sair"
               >
                 <LogOut className="h-5 w-5" />
@@ -145,7 +149,7 @@ export default function Header() {
           ) : (
             <Link
               href="/login"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 hover:bg-gray-50 transition-all"
+              className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
               title="Entrar"
             >
               <User className="h-5 w-5" />
@@ -156,14 +160,14 @@ export default function Header() {
 
       {/* Mobile search & navigation overlay */}
       {isMenuOpen && (
-        <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-4 space-y-4">
+        <div className="lg:hidden border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-4 space-y-4">
           <form onSubmit={handleSearch} className="relative w-full">
             <input
               type="search"
               placeholder="Buscar produtos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+              className="w-full rounded-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
             />
             <Search className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
           </form>
@@ -174,7 +178,7 @@ export default function Header() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-base font-medium text-gray-800 hover:text-amber-600 py-1"
+                className="text-base font-medium text-gray-800 dark:text-gray-100 hover:text-amber-600 py-1"
               >
                 {link.name}
               </Link>
