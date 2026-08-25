@@ -5,6 +5,9 @@ import { OrderStatus, PaymentStatus, PaymentMethod, InventoryMovementType } from
 import { AppError } from "@/lib/config/errors";
 import { logger } from "@/lib/config/logging";
 import { getActiveSession } from "@/server/auth/session";
+import { getGateway } from "@/server/payments/gatewayFactory";
+import { validateCoupon, consumeCoupon } from "@/server/commerce/couponService";
+import { isValidIdempotencyKey } from "@/lib/commerce/idempotency";
 
 interface CheckoutItem {
   variantId: string;
@@ -28,10 +31,12 @@ interface CheckoutInput {
   couponCode?: string;
   paymentMethod: PaymentMethod;
   shippingCost: number;
+  shippingMethod?: string;
+  idempotencyKey?: string;
 }
 
 export async function processCheckout(input: CheckoutInput) {
-  const { items, address, couponCode, paymentMethod, shippingCost } = input;
+  const { items, address, couponCode, paymentMethod, shippingCost, shippingMethod, idempotencyKey } = input;
 
   // The customer is derived from the authenticated, active session — never trusted from the client.
   const session = await getActiveSession();
@@ -43,6 +48,15 @@ export async function processCheckout(input: CheckoutInput) {
 
   if (!items || items.length === 0) {
     throw new AppError("BUSINESS", "Seu carrinho está vazio. Adicione itens antes de finalizar a compra.");
+  }
+
+  // Idempotency: without a valid key we refuse to create a duplicate-prone order.
+  // A retry with the same key must not create a second order.
+  if (!isValidIdempotencyKey(idempotencyKey)) {
+    throw new AppError(
+      "VALIDATION",
+      "Chave de idempotência inválida ou ausente. Não é possível garantir checkout único."
+    );
   }
 
   // Run everything inside an atomic transaction to ensure absolute financial and inventory integrity
@@ -58,27 +72,19 @@ export async function processCheckout(input: CheckoutInput) {
         throw new AppError("NOT_FOUND", "Cliente não encontrado. Verifique sua conta.");
       }
 
-      // 2. Validate Coupon server-side (if provided)
-      let coupon = null;
-      let discountAmount = 0;
-
-      if (couponCode) {
-        coupon = await tx.coupon.findUnique({
-          where: { code: couponCode.toUpperCase() },
-        });
-
-        if (!coupon || !coupon.active) {
-          throw new AppError("BUSINESS", "Cupom inválido ou inativo.");
-        }
-
-        const now = new Date();
-        if (now < coupon.validFrom || now > coupon.validUntil) {
-          throw new AppError("BUSINESS", "Cupom expirado.");
-        }
-
-        if (coupon.maxUses && coupon.usageCount >= coupon.maxUses) {
-          throw new AppError("BUSINESS", "Este cupom atingiu o limite máximo de utilizações.");
-        }
+      // 2. Idempotency: if an order already exists for this key, return it as a
+      //    replay instead of creating a duplicate (and re-decrementing stock).
+      const existingByKey = await tx.order.findUnique({ where: { idempotencyKey } });
+      if (existingByKey) {
+        logger.info(`Checkout replay detected for key ${idempotencyKey}; returning order ${existingByKey.orderNumber}`);
+        return {
+          idempotent: true,
+          orderId: existingByKey.id,
+          orderNumber: existingByKey.orderNumber,
+          total: Number(existingByKey.total),
+          whatsappText: "",
+          payment: null,
+        };
       }
 
       // 3. Query DB for current prices and validate stock of each variant
@@ -137,26 +143,18 @@ export async function processCheckout(input: CheckoutInput) {
         });
       }
 
-      // 4. Finalize coupon discount server-side
-      if (coupon) {
-        if (subtotal < Number(coupon.minSubtotal)) {
-          throw new AppError(
-            "BUSINESS",
-            `Valor mínimo de subtotal para o cupom não atendido. O subtotal deve ser de pelo menos R$ ${Number(coupon.minSubtotal).toFixed(2)}`
-          );
-        }
+      // 4. Finalize coupon discount server-side (centralized rules).
+      let couponRowId: string | null = null;
+      let couponUsage = false;
+      let discountAmount = 0;
 
-        if (coupon.type === "PERCENTAGE") {
-          discountAmount = subtotal * (Number(coupon.value) / 100);
-        } else {
-          discountAmount = Math.min(Number(coupon.value), subtotal);
-        }
-
-        // Increment coupon usage count atomically
-        await tx.coupon.update({
-          where: { id: coupon.id },
-          data: { usageCount: { increment: 1 } },
-        });
+      if (couponCode) {
+        const { coupon, discount } = await validateCoupon(couponCode, customer.id, subtotal);
+        // Resolve the persisted coupon id (snapshot carries business fields only).
+        const couponRow = await tx.coupon.findUnique({ where: { code: coupon.code } });
+        couponRowId = couponRow?.id ?? null;
+        couponUsage = true;
+        discountAmount = discount;
       }
 
       // 5. Calculate final transactional totals
@@ -201,8 +199,9 @@ export async function processCheckout(input: CheckoutInput) {
           discount: discountAmount,
           shipping: shippingCost,
           total: finalTotal,
-          addressSnapshot: address as any,
-          couponId: coupon?.id || null,
+          addressSnapshot: { ...address, shippingMethod } as any,
+          couponId: couponRowId,
+          idempotencyKey,
           notes: "Pedido criado via Checkout ACAIABA",
         },
       });
@@ -225,26 +224,32 @@ export async function processCheckout(input: CheckoutInput) {
         });
       }
 
-      // 10. Create Payment record (simulating pending or instant gateway creation)
+      // 10. Create Payment via the configured gateway (default: simulated PIX).
+      //     The charge is created through the gateway abstraction; the record is
+      //     persisted atomically with the order inside this transaction.
+      const gateway = getGateway();
+      const amountCents = Math.round(finalTotal * 100);
+      const charge = await gateway.createPayment({
+        externalReference: orderNumber,
+        amountCents,
+        currency: "BRL",
+        description: `Pedido ${orderNumber} - ACAIABA`,
+      });
+
       await tx.payment.create({
         data: {
           orderId: order.id,
-          gateway: "SimulatedGateway",
+          gateway: charge.provider,
+          transactionId: charge.providerPaymentId,
           status: PaymentStatus.PENDING,
           amount: finalTotal,
           method: paymentMethod,
         },
       });
 
-      // 11. Create Coupon Usage if applicable
-      if (coupon) {
-        await tx.couponUsage.create({
-          data: {
-            couponId: coupon.id,
-            customerId: customer.id,
-            orderId: order.id,
-          },
-        });
+      // 11. Consume Coupon Usage if applicable (atomic, concurrency-safe).
+      if (couponUsage && couponRowId) {
+        await consumeCoupon(tx, couponRowId, customer.id, order.id);
       }
 
       // 12. Create Audit Log
@@ -276,11 +281,35 @@ export async function processCheckout(input: CheckoutInput) {
         orderNumber,
         total: finalTotal,
         whatsappText,
+        payment: {
+          transactionId: charge.providerPaymentId,
+          provider: charge.provider,
+          qrCode: charge.qrCode ?? null,
+          qrCodeText: charge.qrCodeText ?? null,
+          expiresAt: charge.expiresAt ?? null,
+        },
       };
     });
 
     return result;
-  } catch (error) {
+  } catch (error: any) {
+    // Idempotency race: two concurrent requests with the same key. The unique
+    // constraint on idempotencyKey means only one succeeds; the loser must return
+    // the already-created order instead of failing or creating a duplicate.
+    if (error?.code === "P2002" && Array.isArray(error?.meta?.target) && error.meta.target.includes("idempotencyKey")) {
+      const existing = await prisma.order.findUnique({ where: { idempotencyKey } });
+      if (existing) {
+        logger.info(`Checkout race resolved for key ${idempotencyKey}; returning order ${existing.orderNumber}`);
+        return {
+          idempotent: true,
+          orderId: existing.id,
+          orderNumber: existing.orderNumber,
+          total: Number(existing.total),
+          whatsappText: "",
+          payment: null,
+        };
+      }
+    }
     logger.error("Checkout process failed, transactional rollback executed", { error });
     throw error;
   }
