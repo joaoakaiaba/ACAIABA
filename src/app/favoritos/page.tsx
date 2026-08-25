@@ -1,95 +1,90 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, RotateCcw } from "lucide-react";
+import { Heart } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useAuth } from "@/context/AuthContext";
+import { useRequireAuth } from "@/lib/auth/useRequireAuth";
 import ProductCard from "@/components/ui/ProductCard";
 
-interface SimpleProduct {
-  id: string;
+interface FavoriteProduct {
+  productId: string;
   name: string;
   slug: string;
   brandName: string;
   price: number;
   promotionalPrice: number | null;
-  imageUrl: string;
+  imageUrl: string | null;
   stock: number;
 }
 
 export default function FavoritesPage() {
+  const { user } = useAuth();
+  const { loading: authLoading } = useRequireAuth();
   const { favorites } = useFavorites();
-  const [products, setProducts] = useState<SimpleProduct[]>([]);
+  const [products, setProducts] = useState<FavoriteProduct[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // In actual production we would query /api/favorites, but let's simulate fetching product details for favs elegantly
-    if (favorites.length > 0) {
-      setLoading(true);
-      // Simulate API fetch or directly filter from client cache
-      // Fetching all items from database mock objects matching local storage
-      const mockDb: SimpleProduct[] = [
-        {
-          id: "mock-1",
-          name: "Tênis ACAIABA Force 1",
-          slug: "tenis-acaiaba-force-1",
-          brandName: "ACAIABA",
-          price: 299.90,
-          promotionalPrice: 249.90,
-          imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
-          stock: 10,
-        },
-        {
-          id: "mock-3",
-          name: "Legging Fitness Pro",
-          slug: "legging-fitness-pro",
-          brandName: "ACAIABA",
-          price: 129.90,
-          promotionalPrice: 99.90,
-          imageUrl: "https://images.unsplash.com/photo-1506152983158-b4a74a01c721?w=600&auto=format&fit=crop&q=80",
-          stock: 45,
-        },
-        {
-          id: "mock-5",
-          name: "Camiseta Algodão Egípcio Premium",
-          slug: "camiseta-algodao-egipcio",
-          brandName: "ACAIABA",
-          price: 119.90,
-          promotionalPrice: 89.90,
-          imageUrl: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=600&auto=format&fit=crop&q=80",
-          stock: 30,
-        }
-      ];
+    if (authLoading || !user) return;
 
-      // Filter products that are in the favorites array
-      // In seed database, ids will be UUIDs, so we'll simulate matches or list cached items.
-      // To guarantee excellent UX, if the favorites matches any in DB we display it, else we fallback
-      setProducts(mockDb);
-      setLoading(false);
-    } else {
-      setProducts([]);
-    }
-  }, [favorites]);
+    const load = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const res = await fetch("/api/favorites", { method: "GET" });
+        const data = await res.json();
+        if (res.ok) {
+          setProducts(data.favorites ?? []);
+        } else {
+          setError(data?.error?.message || data?.error || "Falha ao carregar favoritos.");
+        }
+      } catch (e) {
+        setError("Erro de conexão ao carregar favoritos.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [authLoading, user, favorites.length]);
+
+  if (authLoading || !user) {
+    return <div className="mx-auto max-w-7xl px-4 py-20 text-center text-gray-500 dark:text-gray-400">Carregando favoritos...</div>;
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase mb-8">
-        Seus Favoritos
-      </h1>
+      <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase mb-8">Seus Favoritos</h1>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-500">Carregando seus favoritos...</div>
-      ) : favorites.length > 0 ? (
+        <div className="text-center py-20 text-gray-500 dark:text-gray-400">Carregando seus favoritos...</div>
+      ) : error ? (
+        <div className="rounded-2xl border border-red-100 bg-red-50 py-16 text-center px-4 max-w-2xl mx-auto text-sm font-semibold text-red-700">
+          {error}
+        </div>
+      ) : products.length > 0 ? (
         <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4">
-          {products.slice(0, favorites.length).map((prod) => (
-            <ProductCard key={prod.id} {...prod} />
+          {products.map((prod) => (
+            <ProductCard
+              key={prod.productId}
+              id={prod.productId}
+              name={prod.name}
+              slug={prod.slug}
+              brandName={prod.brandName}
+              price={prod.price}
+              promotionalPrice={prod.promotionalPrice}
+              imageUrl={prod.imageUrl || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80"}
+              stock={prod.stock}
+            />
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-200 py-24 text-center px-4 max-w-2xl mx-auto">
+        <div className="rounded-2xl border border-dashed border-gray-200 dark:border-slate-700 py-24 text-center px-4 max-w-2xl mx-auto">
           <Heart className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-lg font-bold text-gray-800 uppercase tracking-tight">Sua lista está vazia</h3>
-          <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
+          <h3 className="mt-4 text-lg font-bold text-gray-800 dark:text-gray-100 uppercase tracking-tight">Sua lista está vazia</h3>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
             Favorito os melhores tênis, roupas fitness, de cama ou maquiagem para salvar seus itens desejados.
           </p>
           <div className="mt-6">
@@ -102,7 +97,6 @@ export default function FavoritesPage() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

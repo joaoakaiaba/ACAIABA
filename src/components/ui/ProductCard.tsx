@@ -99,10 +99,10 @@ export default function ProductCard({
   }
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-all">
+    <div className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-100 dark:border-slate-700 bg-white shadow-sm hover:shadow-md transition-all dark:bg-slate-900 dark:hover:shadow-slate-900/40">
       
       {/* Product Image section */}
-      <Link href={`/produto/${slug}`} className="relative block aspect-square bg-gray-50 overflow-hidden">
+      <Link href={`/produto/${slug}`} className="relative block aspect-square bg-gray-50 dark:bg-slate-800 overflow-hidden">
         <img
           src={imageUrl}
           alt={name}
@@ -113,7 +113,7 @@ export default function ProductCard({
         {/* Favorite toggle absolute button */}
         <button
           onClick={handleToggleFavorite}
-          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow hover:scale-110 active:scale-95 transition-all text-gray-500 hover:text-red-500"
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white dark:bg-slate-900 shadow hover:scale-110 active:scale-95 transition-all text-gray-500 dark:text-gray-400 hover:text-red-500"
           title={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
         >
           <Heart className={`h-4.5 w-4.5 transition-colors ${isFav ? "fill-red-500 text-red-500" : ""}`} />
@@ -144,7 +144,7 @@ export default function ProductCard({
         <span className="text-xs text-amber-600 font-bold uppercase tracking-wider">
           {brandName}
         </span>
-        <h3 className="mt-1 text-sm font-semibold text-gray-800 hover:text-amber-600 line-clamp-2 min-h-[40px]">
+        <h3 className="mt-1 text-sm font-semibold text-gray-800 hover:text-amber-600 line-clamp-2 min-h-[40px] dark:text-gray-100">
           <Link href={`/produto/${slug}`}>{name}</Link>
         </h3>
 
@@ -155,7 +155,7 @@ export default function ProductCard({
 
         {/* Price section */}
         <div className="mt-3 flex items-baseline space-x-2">
-          <span className="text-lg font-extrabold text-gray-950">
+          <span className="text-lg font-extrabold text-gray-950 dark:text-white">
             R$ {activePrice.toFixed(2)}
           </span>
           {hasDiscount && (
