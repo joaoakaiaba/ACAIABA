@@ -106,7 +106,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
         
         {/* Left Column: Image Gallery */}
         <div className="space-y-4">
-          <div className="aspect-square bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-sm relative">
+          <div className="aspect-square bg-gray-50 dark:bg-slate-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-slate-700 shadow-sm relative">
             <img
               src={selectedImage}
               alt={product.name}
@@ -137,7 +137,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
             <span className="text-sm font-bold text-amber-600 uppercase tracking-widest block">
               {product.brandName}
             </span>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight mt-1 leading-tight">
+            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight mt-1 leading-tight dark:text-white">
               {product.name}
             </h1>
             <p className="text-xs text-gray-400 mt-2 font-mono uppercase">
@@ -146,8 +146,8 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           </div>
 
           {/* Pricing area */}
-          <div className="flex items-baseline space-x-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <span className="text-3xl font-black text-slate-950">
+          <div className="flex items-baseline space-x-3 p-4 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-slate-700">
+            <span className="text-3xl font-black text-slate-950 dark:text-white">
               R$ {activePrice.toFixed(2)}
             </span>
             {hasDiscount && (
@@ -160,7 +160,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           {/* Variant Selector: Sizes */}
           {sizes.length > 0 && (
             <div>
-              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Tamanho</h4>
+              <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2">Tamanho</h4>
               <div className="flex flex-wrap gap-2">
                 {sizes.map((sz) => (
                   <button
@@ -182,7 +182,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           {/* Variant Selector: Colors */}
           {colors.length > 0 && (
             <div>
-              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider mb-2">Cor</h4>
+              <h4 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-2">Cor</h4>
               <div className="flex flex-wrap gap-2">
                 {colors.map((col) => (
                   <button
@@ -203,7 +203,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
 
           {/* Stock & Availability badges */}
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-black text-gray-900 uppercase tracking-wider">Disponibilidade:</span>
+            <span className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider">Disponibilidade:</span>
             {currentStock > 0 ? (
               <span className="text-xs font-extrabold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-wider">
                 Em estoque ({currentStock} un)
@@ -216,21 +216,21 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           </div>
 
           {/* Quantity selector & Add to cart actions */}
-          <div className="flex flex-col sm:flex-row gap-4 border-t border-b border-gray-100 py-6">
+          <div className="flex flex-col sm:flex-row gap-4 border-t border-b border-gray-100 dark:border-slate-800 py-6">
             {currentStock > 0 && (
-              <div className="flex items-center border border-gray-200 rounded-lg h-12 bg-white">
+              <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-lg h-12 bg-white dark:bg-slate-900">
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 text-gray-500 hover:text-amber-600 font-bold"
+                  className="px-4 text-gray-500 dark:text-gray-400 hover:text-amber-600 font-bold"
                 >
                   -
                 </button>
-                <span className="px-4 text-sm font-bold font-mono text-gray-800">{quantity}</span>
+                <span className="px-4 text-sm font-bold font-mono text-gray-800 dark:text-gray-100">{quantity}</span>
                 <button
                   type="button"
                   onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
-                  className="px-4 text-gray-500 hover:text-amber-600 font-bold"
+                  className="px-4 text-gray-500 dark:text-gray-400 hover:text-amber-600 font-bold"
                 >
                   +
                 </button>
@@ -264,7 +264,7 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
 
             <button
               onClick={handleShare}
-              className="h-12 w-12 flex items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:text-amber-600 shadow-sm transition-all"
+              className="h-12 w-12 flex items-center justify-center rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-500 dark:text-gray-400 hover:text-amber-600 shadow-sm transition-all"
               title="Copiar link"
             >
               <Share2 className="h-5 w-5" />
@@ -278,31 +278,31 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
           )}
 
           {/* Safe Purchase assurances */}
-          <div className="grid grid-cols-3 gap-4 border-b border-gray-100 pb-6">
+          <div className="grid grid-cols-3 gap-4 border-b border-gray-100 dark:border-slate-800 pb-6">
             <div className="flex flex-col items-center text-center">
               <Truck className="h-5 w-5 text-amber-600 mb-1" />
-              <span className="text-[10px] font-bold text-gray-500 uppercase">Entrega Garantida</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Entrega Garantida</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <ShieldCheck className="h-5 w-5 text-amber-600 mb-1" />
-              <span className="text-[10px] font-bold text-gray-500 uppercase">Compra Criptografada</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Compra Criptografada</span>
             </div>
             <div className="flex flex-col items-center text-center">
               <RefreshCw className="h-5 w-5 text-amber-600 mb-1" />
-              <span className="text-[10px] font-bold text-gray-500 uppercase">30 Dias de Devolução</span>
+              <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">30 Dias de Devolução</span>
             </div>
           </div>
 
           {/* Product Description */}
           <div className="space-y-3">
-            <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b border-gray-100 pb-2">
+            <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-wider border-b border-gray-100 dark:border-slate-800 pb-2">
               Descrição do Produto
             </h3>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
               {product.description}
             </p>
             {product.detailedDescription && (
-              <p className="text-sm text-gray-600 leading-relaxed mt-2">
+              <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mt-2">
                 {product.detailedDescription}
               </p>
             )}
@@ -314,12 +314,12 @@ export default function ProductDetailView({ product, relatedProducts }: ProductD
 
       {/* Related Products Section */}
       {relatedProducts.length > 0 && (
-        <section className="border-t border-gray-100 pt-16">
+        <section className="border-t border-gray-100 dark:border-slate-800 pt-16">
           <div className="mb-10 text-center sm:text-left">
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase sm:text-3xl">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
               Produtos Relacionados
             </h2>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Produtos que você também pode gostar baseados no segmento
             </p>
           </div>

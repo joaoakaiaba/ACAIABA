@@ -39,16 +39,16 @@ export default function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm space-y-6">
+      <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-sm space-y-6">
 
         <div className="text-center">
           <span className="bg-amber-600 px-3 py-1 text-sm font-black tracking-wider text-white uppercase rounded-md inline-block">
             ACAIABA
           </span>
-          <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight mt-4">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mt-4">
             Criar Nova Conta
           </h1>
-          <p className="text-xs text-gray-500 mt-1">Preencha os campos para se registrar</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Preencha os campos para se registrar</p>
         </div>
 
         {error && (
@@ -60,7 +60,7 @@ export default function RegisterPage() {
 
         <form onSubmit={handleRegister} className="space-y-4">
           <div>
-            <label className="text-xs font-black text-gray-900 uppercase tracking-wider block mb-2">Nome Completo</label>
+            <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block mb-2">Nome Completo</label>
             <div className="relative">
               <input
                 type="text"
@@ -68,14 +68,14 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Ex: Mariana Silva"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
               />
               <User className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-black text-gray-900 uppercase tracking-wider block mb-2">E-mail</label>
+            <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block mb-2">E-mail</label>
             <div className="relative">
               <input
                 type="email"
@@ -83,28 +83,28 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Ex: mariana@email.com"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
               />
               <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-black text-gray-900 uppercase tracking-wider block mb-2">Telefone</label>
+            <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block mb-2">Telefone</label>
             <div className="relative">
               <input
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="Ex: (11) 99999-9999"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
               />
               <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-black text-gray-900 uppercase tracking-wider block mb-2">Senha</label>
+            <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block mb-2">Senha</label>
             <div className="relative">
               <input
                 type="password"
@@ -112,7 +112,7 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
               />
               <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
             </div>
@@ -127,8 +127,8 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <div className="text-center border-t border-gray-100 pt-6">
-          <p className="text-xs text-gray-500">
+        <div className="text-center border-t border-gray-100 dark:border-slate-800 pt-6">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Já tem uma conta?{" "}
             <Link href="/login" className="font-bold text-amber-600 hover:text-amber-500">
               Faça login

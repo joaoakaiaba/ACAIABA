@@ -168,19 +168,19 @@ export default async function StorePage({ searchParams }: { searchParams: Search
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       
       {/* Page Title & Stats */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-100 pb-5 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between border-b border-gray-100 dark:border-slate-800 pb-5 mb-8">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase">
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
             Catálogo Completo
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Mostrando {products.length} de {totalCount} produtos encontrados
           </p>
         </div>
         
         {/* Sorting controls */}
         <div className="flex items-center space-x-4 mt-4 md:mt-0">
-          <div className="relative inline-flex items-center space-x-2 text-sm text-gray-600 font-medium">
+          <div className="relative inline-flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300 font-medium">
             <ArrowUpDown className="h-4 w-4 text-gray-400" />
             <span>Ordenar por:</span>
             <div className="flex gap-2">
@@ -210,10 +210,10 @@ export default async function StorePage({ searchParams }: { searchParams: Search
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Filter Sidebar */}
-        <div className="space-y-8 bg-slate-50 p-6 rounded-xl border border-gray-100 h-fit">
+        <div className="space-y-8 bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-gray-100 dark:border-slate-800 h-fit">
           
           <div className="flex items-center justify-between">
-            <h3 className="font-extrabold text-slate-950 uppercase tracking-tight flex items-center space-x-2">
+            <h3 className="font-extrabold text-slate-950 dark:text-white uppercase tracking-tight flex items-center space-x-2">
               <SlidersHorizontal className="h-4 w-4 text-amber-600" />
               <span>Filtros</span>
             </h3>
@@ -230,14 +230,14 @@ export default async function StorePage({ searchParams }: { searchParams: Search
 
           {/* Search bar inside filter */}
           <div>
-            <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider mb-3">Pesquisar</h4>
+            <h4 className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-3">Pesquisar</h4>
             <form action="/loja" method="GET" className="relative">
               <input
                 type="text"
                 name="search"
                 defaultValue={searchParams.search || ""}
                 placeholder="Buscar palavra-chave..."
-                className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-4 pr-10 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 pl-4 pr-10 text-xs outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
               />
               <button type="submit" className="absolute right-3 top-2.5">
                 <Search className="h-4 w-4 text-gray-400" />
@@ -251,7 +251,7 @@ export default async function StorePage({ searchParams }: { searchParams: Search
 
           {/* Categories list */}
           <div>
-            <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider mb-3 border-b border-gray-200 pb-2">Segmentos</h4>
+            <h4 className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-3 border-b border-gray-200 dark:border-slate-700 pb-2">Segmentos</h4>
             <div className="flex flex-col space-y-2 mt-3">
               <Link
                 href={createQueryUrl({ categoria: null, page: "1" })}
@@ -273,7 +273,7 @@ export default async function StorePage({ searchParams }: { searchParams: Search
                   </Link>
                   {/* Render children subcategories if top category is clicked */}
                   {cat.children.length > 0 && (
-                    <div className="pl-3 flex flex-col space-y-1 border-l border-gray-200 ml-1">
+                    <div className="pl-3 flex flex-col space-y-1 border-l border-gray-200 dark:border-slate-700 ml-1">
                       {cat.children.map((sub) => (
                         <Link
                           key={sub.id}
@@ -294,7 +294,7 @@ export default async function StorePage({ searchParams }: { searchParams: Search
 
           {/* Brands list */}
           <div>
-            <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider mb-3 border-b border-gray-200 pb-2">Marcas</h4>
+            <h4 className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider mb-3 border-b border-gray-200 dark:border-slate-700 pb-2">Marcas</h4>
             <div className="flex flex-col space-y-2 mt-3">
               <Link
                 href={createQueryUrl({ brand: null, page: "1" })}
@@ -330,10 +330,10 @@ export default async function StorePage({ searchParams }: { searchParams: Search
               ))}
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-gray-200 py-24 text-center px-4">
+            <div className="rounded-2xl border border-dashed border-gray-200 dark:border-slate-700 py-24 text-center px-4">
               <RotateCcw className="mx-auto h-12 w-12 text-gray-300" />
-              <h3 className="mt-4 text-lg font-bold text-gray-800 uppercase tracking-tight">Nenhum produto encontrado</h3>
-              <p className="mt-2 text-sm text-gray-500 max-w-sm mx-auto">
+              <h3 className="mt-4 text-lg font-bold text-gray-800 dark:text-gray-100 uppercase tracking-tight">Nenhum produto encontrado</h3>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
                 Tente ajustar seus filtros ou limpar a pesquisa de palavra-chave para encontrar os produtos desejados.
               </p>
               <div className="mt-6">
@@ -349,18 +349,18 @@ export default async function StorePage({ searchParams }: { searchParams: Search
 
           {/* Pagination controls */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-center space-x-2 border-t border-gray-100 pt-8">
+            <div className="flex items-center justify-center space-x-2 border-t border-gray-100 dark:border-slate-800 pt-8">
               {/* Prev Page Button */}
               {currentPage > 1 ? (
                 <Link
                   href={createQueryUrl({ page: String(currentPage - 1) })}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 transition-all"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 dark:border-slate-700 bg-white text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
                   title="Página Anterior"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Link>
               ) : (
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 text-gray-300 cursor-not-allowed">
                   <ChevronLeft className="h-5 w-5" />
                 </span>
               )}
@@ -387,13 +387,13 @@ export default async function StorePage({ searchParams }: { searchParams: Search
               {currentPage < totalPages ? (
                 <Link
                   href={createQueryUrl({ page: String(currentPage + 1) })}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 transition-all"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 dark:border-slate-700 bg-white text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
                   title="Próxima Página"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Link>
               ) : (
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-gray-100 dark:border-slate-800 bg-gray-50 dark:bg-slate-900 text-gray-300 cursor-not-allowed">
                   <ChevronRight className="h-5 w-5" />
                 </span>
               )}

@@ -96,7 +96,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   }
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-slate-900">
       <ProductDetailView product={data.product} relatedProducts={data.relatedProducts} />
     </div>
   );

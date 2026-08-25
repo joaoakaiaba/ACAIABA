@@ -131,10 +131,10 @@ export default async function Home() {
       {/* 2. Categories Grid */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center mb-10">
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase sm:text-3xl">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
             Explorar Categorias
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Navegue pelos nossos principais segmentos e encontre o que precisa
           </p>
         </div>
@@ -150,7 +150,7 @@ export default async function Home() {
             <Link
               key={cat.slug}
               href={`/loja?categoria=${cat.slug}`}
-              className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-xl bg-gray-100 shadow-sm"
+              className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-xl bg-gray-100 dark:bg-slate-800 shadow-sm"
             >
               <img
                 src={cat.img}
@@ -175,10 +175,10 @@ export default async function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase sm:text-3xl">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
               Mais Vendidos & Destaques
             </h2>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Os produtos que são sucesso absoluto de vendas
             </p>
           </div>
@@ -198,7 +198,7 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-200 p-12 text-center text-gray-500">
+          <div className="rounded-xl border border-dashed border-gray-200 dark:border-slate-700 p-12 text-center text-gray-500 dark:text-gray-400">
             Nenhum produto em destaque encontrado. Execute o seed no banco de dados.
           </div>
         )}
@@ -240,10 +240,10 @@ export default async function Home() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase sm:text-3xl">
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
               Melhores Ofertas
             </h2>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
               Produtos selecionados com descontos especiais para você
             </p>
           </div>
@@ -263,14 +263,14 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-200 p-12 text-center text-gray-500">
+          <div className="rounded-xl border border-dashed border-gray-200 dark:border-slate-700 p-12 text-center text-gray-500 dark:text-gray-400">
             Nenhuma oferta especial no momento.
           </div>
         )}
       </section>
 
       {/* 6. Brand Benefits */}
-      <section className="bg-slate-50 py-16">
+      <section className="bg-slate-50 dark:bg-slate-900 py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
             {[
@@ -280,8 +280,8 @@ export default async function Home() {
             ].map((benefit, i) => (
               <div key={i} className="flex flex-col items-center text-center p-4">
                 <CheckCircle className="h-10 w-10 text-amber-600 mb-4" />
-                <h3 className="font-extrabold text-lg text-slate-900 uppercase tracking-tight">{benefit.title}</h3>
-                <p className="mt-2 text-sm text-gray-500 leading-relaxed max-w-xs">{benefit.desc}</p>
+                <h3 className="font-extrabold text-lg text-slate-900 dark:text-white uppercase tracking-tight">{benefit.title}</h3>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs">{benefit.desc}</p>
               </div>
             ))}
           </div>
@@ -291,27 +291,27 @@ export default async function Home() {
       {/* 7. Testimonials Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center mb-10">
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase sm:text-3xl">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
             Quem Usa, Recomenda
           </h2>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Veja os depoimentos de clientes reais que marcam presença com a ACAIABA
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {testimonials.map((test, idx) => (
-            <div key={idx} className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div key={idx} className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
               <div className="flex items-center space-x-1 text-amber-500 mb-4">
                 {[...Array(test.stars)].map((_, i) => (
                   <Star key={i} className="h-4 w-4 fill-amber-500" />
                 ))}
               </div>
-              <p className="text-sm text-gray-600 italic leading-relaxed">
+              <p className="text-sm text-gray-600 dark:text-gray-300 italic leading-relaxed">
                 &quot;{test.comment}&quot;
               </p>
               <div className="mt-4 border-t border-gray-50 pt-4">
-                <h4 className="font-bold text-sm text-slate-900">{test.name}</h4>
+                <h4 className="font-bold text-sm text-slate-900 dark:text-white">{test.name}</h4>
                 <p className="text-xs text-amber-600 font-semibold">{test.role}</p>
               </div>
             </div>
