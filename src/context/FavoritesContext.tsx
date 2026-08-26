@@ -25,6 +25,26 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     if (isAuthed) {
       (async () => {
         try {
+          // Migrate guest favorites (localStorage) to the server before loading,
+          // so items favorited while logged out are not lost on login.
+          const saved = localStorage.getItem("acaiaba_favorites");
+          if (saved) {
+            let local: string[] = [];
+            try {
+              local = JSON.parse(saved);
+            } catch (e) {
+              console.error("Failed to parse local favorites", e);
+            }
+            for (const id of Array.isArray(local) ? local : []) {
+              if (typeof id !== "string" || !id) continue;
+              const sync = await fetch(`/api/favorites/${id}`, { method: "POST" });
+              if (!sync.ok) {
+                console.error(`Failed to sync guest favorite ${id}: HTTP ${sync.status}`);
+              }
+            }
+            localStorage.removeItem("acaiaba_favorites");
+          }
+
           const res = await fetch("/api/favorites", { method: "GET" });
           const data = await res.json();
           if (res.ok && data?.favorites) {
@@ -59,10 +79,14 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
 
       if (isAuthed) {
         try {
-          if (isFav) {
-            await fetch(`/api/favorites/${productId}`, { method: "DELETE" });
-          } else {
-            await fetch(`/api/favorites/${productId}`, { method: "POST" });
+          const res = isFav
+            ? await fetch(`/api/favorites/${productId}`, { method: "DELETE" })
+            : await fetch(`/api/favorites/${productId}`, { method: "POST" });
+          if (!res.ok) {
+            // Non-OK HTTP responses do not throw: revert the optimistic update
+            // so the UI never shows a favorite the server did not persist.
+            setFavorites(favorites);
+            console.error(`Failed to toggle favorite ${productId}: HTTP ${res.status}`);
           }
         } catch (e) {
           // Revert on failure.

@@ -13,11 +13,11 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
-  
+
   const { cartItems } = useCart();
   const { favorites } = useFavorites();
   const { user, isAuthenticated, isAdmin, logout } = useAuth();
-  
+
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const favoritesCount = favorites.length;
 
@@ -43,147 +43,151 @@ export default function Header() {
     { name: "Beleza", href: "/loja?categoria=beleza-cuidados" },
   ];
 
+  const iconBtn =
+    "relative flex h-10 w-10 items-center justify-center rounded-full text-ink-600 transition-colors hover:text-ink-950 dark:text-ink-300 dark:hover:text-white";
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-100 dark:border-slate-700 bg-white shadow-sm dark:bg-slate-900 dark:shadow-slate-900/40">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        
+    <header className="sticky top-0 z-50 w-full border-b border-ink-100 bg-white/90 backdrop-blur-md dark:border-white/10 dark:bg-ink-950/85">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-8">
         {/* Mobile menu toggle */}
         <button
           type="button"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 lg:hidden"
-          aria-label="Abrir menu"
+          className={`${iconBtn} lg:hidden`}
+          aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={isMenuOpen}
         >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
 
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="bg-amber-600 px-3 py-1 text-xl font-black tracking-wider text-white uppercase rounded-md shadow-sm">
-            ACAIABA
+        {/* Wordmark — presença de marca */}
+        <Link href="/" className="group flex flex-col leading-none" aria-label="ACAIABA — página inicial">
+          <span className="font-display text-lg font-black uppercase tracking-brand text-ink-950 transition-colors group-hover:text-electric-600 dark:text-white dark:group-hover:text-electric-400 lg:text-xl">
+            Acaiaba
+          </span>
+          <span className="mt-1 flex items-center gap-1.5">
+            <span className="h-px w-4 bg-electric-600" aria-hidden="true" />
+            <span className="font-display text-[9px] font-bold uppercase tracking-brand text-ink-400 dark:text-ink-300">
+              Eletric
+            </span>
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex lg:space-x-8">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Navegação principal">
           {navLinks.map((link) => (
             <Link
               key={link.name}
               href={link.href}
-              className="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-amber-600 transition-colors"
+              className="relative font-display text-[11px] font-bold uppercase tracking-label text-ink-500 transition-colors after:absolute after:-bottom-1.5 after:left-0 after:h-px after:w-0 after:bg-electric-600 after:transition-all after:duration-300 hover:text-ink-950 hover:after:w-full dark:text-ink-300 dark:hover:text-white dark:after:bg-electric-400"
             >
               {link.name}
             </Link>
           ))}
         </nav>
 
-        {/* Search, Favorites, Cart, Theme & User Profile Actions */}
-        <div className="flex items-center space-x-4">
-          
-          {/* Desktop Search bar */}
-          <form onSubmit={handleSearch} className="relative hidden md:block">
+        {/* Actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          {/* Desktop Search */}
+          <form onSubmit={handleSearch} className="relative hidden md:block" role="search">
             <input
               type="search"
               placeholder="Buscar produtos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64 rounded-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900 transition-all"
+              aria-label="Buscar produtos"
+              className="w-56 rounded-full border border-ink-200 bg-transparent py-2 pl-10 pr-4 text-sm text-ink-900 placeholder-ink-400 outline-none transition-all focus:border-electric-500 focus:w-64 dark:border-white/15 dark:text-ink-100 dark:placeholder-ink-500 dark:focus:border-electric-400"
             />
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3.5 top-2.5 h-4 w-4 text-ink-400" />
           </form>
 
-          {/* Theme toggle */}
           <ThemeToggle />
 
-          {/* Favorites link */}
-          <Link
-            href="/favoritos"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
-            title="Favoritos"
-          >
+          <Link href="/favoritos" className={iconBtn} title="Favoritos" aria-label={`Favoritos (${favoritesCount})`}>
             <Heart className="h-5 w-5" />
             {favoritesCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-electric-600 px-1 text-[10px] font-bold text-white">
                 {favoritesCount}
               </span>
             )}
           </Link>
 
-          {/* Cart link */}
-          <Link
-            href="/carrinho"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
-            title="Carrinho"
-          >
+          <Link href="/carrinho" className={iconBtn} title="Carrinho" aria-label={`Carrinho (${cartCount} itens)`}>
             <ShoppingBag className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-xs font-bold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-electric-600 px-1 text-[10px] font-bold text-white">
                 {cartCount}
               </span>
             )}
           </Link>
 
-          {/* Account / user area */}
           {isAuthenticated ? (
             <>
               <Link
                 href={isAdmin ? "/admin" : "/conta"}
-                className="flex h-10 items-center gap-2 rounded-full bg-amber-50 border border-amber-100 px-2.5 sm:px-3 text-gray-800 dark:text-gray-100 hover:bg-amber-100 transition-all"
+                className="ml-1 hidden h-10 items-center gap-2 rounded-full border border-ink-200 px-3 text-xs font-bold text-ink-800 transition-colors hover:border-electric-500 hover:text-electric-600 dark:border-white/15 dark:text-ink-100 dark:hover:border-electric-400 dark:hover:text-electric-400 sm:flex"
                 title="Minha Conta"
               >
-                <span className="h-6 w-6 rounded-full bg-amber-600 flex items-center justify-center text-white text-xs font-bold">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-electric-600 font-display text-[10px] font-black text-white">
                   {(user?.name?.[0] || "U").toUpperCase()}
                 </span>
-                <span className="hidden sm:inline text-xs font-bold max-w-[90px] truncate">
-                  {user?.name?.split(" ")[0] || "Conta"}
-                </span>
+                <span className="max-w-[90px] truncate">{user?.name?.split(" ")[0] || "Conta"}</span>
               </Link>
-              <button
-                onClick={handleLogout}
-                className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-600 transition-all"
-                title="Sair"
-              >
+              <button type="button" onClick={handleLogout} className={iconBtn} title="Sair" aria-label="Sair da conta">
                 <LogOut className="h-5 w-5" />
               </button>
             </>
           ) : (
-            <Link
-              href="/login"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:bg-slate-900 dark:hover:bg-slate-800 transition-all"
-              title="Entrar"
-            >
+            <Link href="/login" className={iconBtn} title="Entrar" aria-label="Entrar na conta">
               <User className="h-5 w-5" />
             </Link>
           )}
         </div>
       </div>
 
-      {/* Mobile search & navigation overlay */}
+      {/* Mobile overlay: busca + navegação editorial */}
       {isMenuOpen && (
-        <div className="lg:hidden border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-4 space-y-4">
-          <form onSubmit={handleSearch} className="relative w-full">
+        <div className="border-t border-ink-100 bg-white px-4 pb-8 pt-4 dark:border-white/10 dark:bg-ink-950 lg:hidden">
+          <form onSubmit={handleSearch} className="relative w-full" role="search">
             <input
               type="search"
               placeholder="Buscar produtos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-full border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
+              aria-label="Buscar produtos"
+              className="w-full rounded-full border border-ink-200 bg-transparent py-2.5 pl-10 pr-4 text-sm text-ink-900 placeholder-ink-400 outline-none focus:border-electric-500 dark:border-white/15 dark:text-ink-100 dark:placeholder-ink-500"
             />
-            <Search className="absolute left-3 top-3.5 h-4 w-4 text-gray-400" />
+            <Search className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-ink-400" />
           </form>
 
-          <nav className="flex flex-col space-y-3">
+          <nav className="mt-6 flex flex-col" aria-label="Navegação principal">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-base font-medium text-gray-800 dark:text-gray-100 hover:text-amber-600 py-1"
+                className="border-b border-ink-100 py-3.5 font-display text-sm font-bold uppercase tracking-label text-ink-800 transition-colors hover:text-electric-600 dark:border-white/10 dark:text-ink-100 dark:hover:text-electric-400"
               >
                 {link.name}
               </Link>
             ))}
           </nav>
+
+          {isAuthenticated && (
+            <div className="mt-6 flex items-center gap-3">
+              <Link
+                href={isAdmin ? "/admin" : "/conta"}
+                onClick={() => setIsMenuOpen(false)}
+                className="btn-outline !px-5 !py-2.5"
+              >
+                Minha conta
+              </Link>
+              <button type="button" onClick={handleLogout} className="btn-ghost">
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            </div>
+          )}
         </div>
       )}
     </header>

@@ -53,6 +53,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (isAuthed) {
       (async () => {
         try {
+          // Migrate the guest cart (localStorage) to the server before loading,
+          // so items added while logged out are not lost on login. Only real
+          // variant ids are synced; invented "<id>-default" values are skipped.
+          const saved = localStorage.getItem("acaiaba_cart");
+          if (saved) {
+            let local: CartItem[] = [];
+            try {
+              local = JSON.parse(saved);
+            } catch (e) {
+              console.error("Failed to parse local cart", e);
+            }
+            for (const item of Array.isArray(local) ? local : []) {
+              const variantId = item?.variantId || item?.id;
+              if (
+                typeof variantId !== "string" ||
+                !variantId ||
+                variantId.endsWith("-default")
+              ) {
+                continue;
+              }
+              const sync = await fetch("/api/cart/items", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  variantId,
+                  quantity: Math.max(1, Math.floor(item?.quantity || 1)),
+                }),
+              });
+              if (!sync.ok) {
+                console.error(
+                  `Failed to sync guest cart item ${variantId}: HTTP ${sync.status}`
+                );
+              }
+            }
+            localStorage.removeItem("acaiaba_cart");
+          }
+
           const res = await fetch("/api/cart", { method: "GET" });
           const data = await res.json();
           if (res.ok && data?.cart) {
@@ -102,11 +139,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     async (item: Omit<CartItem, "quantity">, qty: number = 1) => {
       if (isAuthed) {
         try {
-          await fetch("/api/cart/items", {
+          const post = await fetch("/api/cart/items", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ variantId: item.variantId || item.id, quantity: qty }),
           });
+          if (!post.ok) {
+            // Non-OK responses do not throw: surface the failure instead of
+            // silently refreshing the (unchanged) server cart.
+            console.error(
+              `Failed to add cart item ${item.variantId || item.id}: HTTP ${post.status}`
+            );
+            return;
+          }
           const res = await fetch("/api/cart", { method: "GET" });
           const data = await res.json();
           if (res.ok && data?.cart) {

@@ -25,7 +25,7 @@ export default function ThemeToggle() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-yellow-300 dark:hover:bg-slate-700"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-600 transition-colors hover:text-ink-950 dark:text-ink-300 dark:hover:text-white"
         title={`Tema: ${label} — clique para alterar`}
         aria-label="Alternar tema"
         aria-haspopup="menu"
@@ -39,7 +39,7 @@ export default function ThemeToggle() {
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} aria-hidden="true" />
           <div
             role="menu"
-            className="absolute right-0 z-50 mt-2 w-44 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-1.5 shadow-lg"
+            className="absolute right-0 z-50 mt-2 w-44 rounded-md border border-ink-100 bg-white p-1.5 shadow-card dark:border-white/10 dark:bg-ink-925 dark:shadow-card-dark"
           >
             {OPTIONS.map((opt) => (
               <button
@@ -51,10 +51,10 @@ export default function ThemeToggle() {
                   setMode(opt.value);
                   setOpen(false);
                 }}
-                className={`w-full flex items-center space-x-2.5 rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
+                className={`flex w-full items-center gap-2.5 rounded-sm px-3 py-2 font-display text-[11px] font-bold uppercase tracking-label transition-colors ${
                   mode === opt.value
-                    ? "bg-amber-600 text-white"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-slate-700"
+                    ? "bg-ink-950 text-white dark:bg-electric-600"
+                    : "text-ink-600 hover:bg-ink-50 hover:text-ink-950 dark:text-ink-300 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
                 {opt.icon}

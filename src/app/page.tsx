@@ -1,12 +1,14 @@
-import React from "react";
 import Link from "next/link";
-import { prisma } from "@/lib/config/prisma";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import ProductCard from "@/components/ui/ProductCard";
 import NewsletterForm from "@/components/ui/NewsletterForm";
-import { ShoppingBag, ChevronRight, CheckCircle, Star, Sparkles, Send } from "lucide-react";
 
 async function getHomePageData() {
   try {
+    // Dynamic import: if the Prisma client cannot be loaded (e.g. infra
+    // failure), the existing catch degrades to the real empty states instead
+    // of a hard 500. When the client is available, behavior is unchanged.
+    const { prisma } = await import("@/lib/config/prisma");
     const products = await prisma.product.findMany({
       where: { isActive: true },
       include: {
@@ -26,15 +28,22 @@ async function getHomePageData() {
 
     // Map database structures into storefront-friendly props
     const formattedProducts = products.map((prod) => {
-      const totalStock = prod.variants.reduce((sum, v) => sum + (v.inventory?.quantity ?? 0), 0);
+      const totalStock = prod.variants.reduce(
+        (sum, v) => sum + (v.inventory?.quantity ?? 0),
+        0
+      );
       return {
         id: prod.id,
         name: prod.name,
         slug: prod.slug,
         brandName: prod.brand.name,
         price: Number(prod.price),
-        promotionalPrice: prod.promotionalPrice ? Number(prod.promotionalPrice) : null,
-        imageUrl: prod.images[0]?.url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
+        promotionalPrice: prod.promotionalPrice
+          ? Number(prod.promotionalPrice)
+          : null,
+        imageUrl:
+          prod.images[0]?.url ||
+          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80",
         stock: totalStock,
         isFeatured: prod.isFeatured,
         categorySlug: prod.category.slug,
@@ -50,291 +59,368 @@ async function getHomePageData() {
 
     const featured = formattedProducts.filter((p) => p.isFeatured);
     const offers = formattedProducts.filter((p) => p.promotionalPrice !== null);
-    const latest = formattedProducts.slice(-4); // Last 4 items
 
-    return { featured, offers, latest, allProducts: formattedProducts };
+    return { featured, offers };
   } catch (error) {
     console.error("Error fetching homepage products:", error);
-    return { featured: [], offers: [], latest: [], allProducts: [] };
+    return { featured: [], offers: [] };
   }
 }
 
-export default async function Home() {
-  const { featured, offers, latest } = await getHomePageData();
+// Categorias reais do sistema (mesmos slugs/links já utilizados pela Home).
+const CATEGORIES = [
+  {
+    name: "Calçados",
+    slug: "calcados",
+    img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=900&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Fitness & Gym",
+    slug: "fitness",
+    img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=900&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Moda Casual",
+    slug: "moda",
+    img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=900&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Casa & Enxoval",
+    slug: "casa-enxoval",
+    img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=900&auto=format&fit=crop&q=80",
+  },
+  {
+    name: "Beleza",
+    slug: "beleza-cuidados",
+    img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=900&auto=format&fit=crop&q=80",
+  },
+];
 
-  // Premium static mock reviews to maintain UX standard
-  const testimonials = [
-    {
-      name: "Mariana Silva",
-      role: "Atleta de CrossFit",
-      comment: "A calça Legging Fitness Pro é simplesmente perfeita! Zero transparência e compressão ideal para treinos pesados. A entrega foi super rápida.",
-      stars: 5,
-    },
-    {
-      name: "Thiago Ramos",
-      role: "Engenheiro de Software",
-      comment: "Comprei o Tênis Force 1 e superou todas as expectativas. Extremamente leve e durável, uso para corrida e no dia a dia. Recomendo muito!",
-      stars: 5,
-    },
-    {
-      name: "Beatriz M.",
-      role: "Designer de Interiores",
-      comment: "O jogo de cama de 300 fios transformou meu quarto. Toque acetinado incrível. A ACAIABA realmente se importa com a qualidade.",
-      stars: 5,
-    },
-  ];
+function CategoryTile({
+  category,
+  index,
+  className = "",
+}: {
+  category: (typeof CATEGORIES)[number];
+  index: number;
+  className?: string;
+}) {
+  return (
+    <Link
+      href={`/loja?categoria=${category.slug}`}
+      className={`group relative block overflow-hidden rounded-md bg-ink-100 dark:bg-ink-925 ${className}`}
+    >
+      <img
+        src={category.img}
+        alt={`Categoria ${category.name}`}
+        loading="lazy"
+        className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-premium group-hover:scale-[1.04]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-ink-950/15 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5">
+        <div>
+          <p className="font-display text-[10px] font-bold uppercase tracking-label text-electric-400">
+            {String(index + 1).padStart(2, "0")} — Acaiaba
+          </p>
+          <p className="mt-1 font-display text-xl font-black uppercase tracking-tight text-white md:text-2xl">
+            {category.name}
+          </p>
+        </div>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/25 text-white transition-colors duration-300 group-hover:border-electric-600 group-hover:bg-electric-600">
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+export default async function Home() {
+  const { featured, offers } = await getHomePageData();
+  const heroCategories = [CATEGORIES[0], CATEGORIES[2], CATEGORIES[4]];
 
   return (
-    <div className="space-y-16 pb-20">
-      
-      {/* 1. Hero Section */}
-      <section className="relative overflow-hidden bg-slate-950 py-32 text-white">
-        {/* Background photo overlay */}
-        <div className="absolute inset-0 opacity-40 mix-blend-multiply">
-          <img
-            src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1600&auto=format&fit=crop&q=80"
-            alt="ACAIABA Lifestyle"
-            className="h-full w-full object-cover"
-          />
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
-          <div className="inline-flex items-center space-x-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-semibold text-amber-400 uppercase tracking-wider mb-6">
-            <Sparkles className="h-4 w-4" />
-            <span>Estilo, Performance e Conforto</span>
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl text-white uppercase">
-            ACAIABA
-          </h1>
-          <p className="mt-4 text-xl sm:text-2xl text-amber-500 font-extrabold italic tracking-wide uppercase">
-            O estilo que marca presença.
-          </p>
-          <p className="mt-6 max-w-xl text-base sm:text-lg text-gray-300 leading-relaxed">
-            Descubra coleções exclusivas de calçados de alta tecnologia, vestuário fitness profissional, moda casual contemporânea, cama de alto padrão e cosméticos premium.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md">
-            <Link
-              href="/loja"
-              className="rounded-lg bg-amber-600 hover:bg-amber-500 px-8 py-3.5 text-base font-bold text-white shadow-lg shadow-amber-600/25 transition-all text-center uppercase tracking-wider"
-            >
-              Comprar agora
-            </Link>
-            <Link
-              href="/loja?sort=discount_desc"
-              className="rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 px-8 py-3.5 text-base font-bold text-white transition-all text-center uppercase tracking-wider"
-            >
-              Ver ofertas
-            </Link>
-          </div>
-        </div>
-      </section>
+    <div>
+      {/* ================= HERO — campanha editorial ================= */}
+      <section className="relative overflow-hidden bg-ink-950 text-white">
+        {/* Ghost wordmark — cortado na borda superior, como campanha */}
+        <p
+          aria-hidden="true"
+          className="text-outline pointer-events-none absolute -top-[4vw] left-0 right-0 select-none whitespace-nowrap text-center font-display text-[19vw] font-black uppercase leading-none tracking-brand"
+        >
+          Acaiaba
+        </p>
 
-      {/* 2. Categories Grid */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center text-center mb-10">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
-            Explorar Categorias
-          </h2>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Navegue pelos nossos principais segmentos e encontre o que precisa
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
-          {[
-            { name: "Calçados", slug: "calcados", img: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&auto=format&fit=crop&q=80" },
-            { name: "Fitness & Gym", slug: "fitness", img: "https://images.unsplash.com/photo-1518310383802-640c2de311b2?w=400&auto=format&fit=crop&q=80" },
-            { name: "Moda Casual", slug: "moda", img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=400&auto=format&fit=crop&q=80" },
-            { name: "Casa & Enxoval", slug: "casa-enxoval", img: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&auto=format&fit=crop&q=80" },
-            { name: "Beleza", slug: "beleza-cuidados", img: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=400&auto=format&fit=crop&q=80" },
-          ].map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/loja?categoria=${cat.slug}`}
-              className="group relative flex aspect-[4/5] flex-col overflow-hidden rounded-xl bg-gray-100 dark:bg-slate-800 shadow-sm"
-            >
-              <img
-                src={cat.img}
-                alt={cat.name}
-                className="absolute inset-0 h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <span className="text-xs font-bold text-amber-500 uppercase tracking-wider block mb-1">
-                  ACAIABA
-                </span>
-                <span className="text-base font-extrabold text-white uppercase tracking-tight block">
-                  {cat.name}
-                </span>
+        <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-24 sm:px-6 lg:px-8 lg:pb-16 lg:pt-32">
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
+            {/* Conteúdo principal */}
+            <div className="flex flex-col justify-center lg:col-span-5">
+              <p className="font-display text-[11px] font-bold uppercase tracking-brand text-electric-500">
+                Acaiaba — Electric
+              </p>
+              <h1 className="mt-6 font-display text-[13vw] font-black uppercase leading-[0.92] tracking-tight sm:text-6xl lg:text-7xl">
+                <span className="block">O estilo</span>
+                <span className="block">que marca</span>
+                <span className="block text-electric-500">presença.</span>
+              </h1>
+              <p className="mt-6 max-w-sm text-sm leading-relaxed text-ink-300">
+                Produtos selecionados para quem vive intensamente cada detalhe.
+              </p>
+              <div className="mt-10 flex flex-wrap items-center gap-6">
+                <Link href="/loja" className="btn-electric">
+                  Comprar agora
+                </Link>
+                <Link
+                  href="/loja"
+                  className="group inline-flex items-center gap-2 font-display text-xs font-bold uppercase tracking-label text-white transition-colors hover:text-electric-400"
+                >
+                  Explorar coleção
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
               </div>
-            </Link>
-          ))}
+            </div>
+
+            {/* Retrato com glow elétrico */}
+            <div className="relative lg:col-span-4">
+              <div
+                aria-hidden="true"
+                className="absolute left-1/2 top-1/2 h-3/4 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-electric-600/25 blur-3xl"
+              />
+              <div className="relative mx-auto max-w-md lg:max-w-none">
+                <img
+                  src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&auto=format&fit=crop&q=80"
+                  alt="Campanha ACAIABA — estilo que marca presença"
+                  className="aspect-[3/4] w-full object-cover object-top contrast-125 grayscale transition-transform duration-700 ease-premium hover:scale-[1.01]"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-ink-950 via-transparent to-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Categorias em coluna vertical (desktop) / trilho (mobile) */}
+            <div className="lg:col-span-3">
+              <div className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 lg:mx-0 lg:grid lg:h-full lg:grid-rows-3 lg:overflow-visible lg:px-0">
+                {heroCategories.map((cat, i) => (
+                  <Link
+                    key={cat.slug}
+                    href={`/loja?categoria=${cat.slug}`}
+                    className={`group relative block aspect-[3/4] min-w-[150px] snap-start overflow-hidden rounded-md border bg-ink-925 sm:min-w-[170px] lg:aspect-auto lg:min-w-0 ${
+                      i === 0
+                        ? "border-electric-500/70"
+                        : "border-white/10"
+                    }`}
+                  >
+                    <img
+                      src={cat.img}
+                      alt={`Categoria ${cat.name}`}
+                      loading="lazy"
+                      className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-700 ease-premium group-hover:scale-[1.05]"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-950/20 to-transparent" />
+                    <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-3.5">
+                      <div>
+                        <p className="font-display text-sm font-black uppercase tracking-tight text-white">
+                          {cat.name}
+                        </p>
+                        <p className="mt-1 text-[11px] font-medium text-ink-300 transition-colors group-hover:text-electric-400">
+                          Confira
+                        </p>
+                      </div>
+                      <ArrowRight className="mb-0.5 h-3.5 w-3.5 text-ink-300 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-electric-400" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ================= FAIXA DE BENEFÍCIOS ================= */}
+        <div className="relative mx-auto max-w-7xl px-4 pb-12 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 overflow-hidden rounded-lg border border-white/10 bg-ink-925 lg:grid-cols-4">
+            {[
+              { value: "Frete", label: "Grátis", micro: "Para todo o Brasil" },
+              { value: "100%", label: "Seguro", micro: "Seus dados protegidos" },
+              { value: "30 dias", label: "Para trocas", micro: "E devoluções" },
+              { value: "PIX", label: "Instantâneo", micro: "Confirmação imediata" },
+            ].map((b) => (
+              <div
+                key={b.value}
+                className="border-white/10 px-6 py-8 text-center lg:py-10 max-lg:[&:nth-child(even)]:border-l max-lg:[&:nth-child(n+3)]:border-t lg:border-l lg:first:border-l-0"
+              >
+                <p className="font-display text-2xl font-black uppercase tracking-tight text-electric-500 lg:text-3xl">
+                  {b.value}
+                </p>
+                <p className="mt-1.5 font-display text-[11px] font-bold uppercase tracking-label text-white">
+                  {b.label}
+                </p>
+                <p className="mt-1 text-[11px] text-ink-400">{b.micro}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* 3. Featured Products ("Mais Vendidos") */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-8">
+      {/* ================= DESTAQUES ================= */}
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
-              Mais Vendidos & Destaques
-            </h2>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Os produtos que são sucesso absoluto de vendas
+            <p className="eyebrow !text-electric-600 dark:!text-electric-400">
+              Seleção Acaiaba
             </p>
+            <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-ink-950 dark:text-white sm:text-5xl">
+              Destaques da vez.
+            </h2>
           </div>
           <Link
             href="/loja"
-            className="hidden sm:inline-flex items-center text-sm font-semibold text-amber-600 hover:text-amber-500"
+            className="group hidden items-center gap-2 font-display text-xs font-bold uppercase tracking-label text-ink-500 transition-colors hover:text-electric-600 sm:inline-flex dark:text-ink-300 dark:hover:text-electric-400"
           >
-            <span>Ver todos</span>
-            <ChevronRight className="ml-1 h-4 w-4" />
+            Ver todos
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
 
         {featured.length > 0 ? (
-          <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-4">
             {featured.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-200 dark:border-slate-700 p-12 text-center text-gray-500 dark:text-gray-400">
+          <div className="mt-12 border border-dashed border-ink-200 py-20 text-center text-sm text-ink-400 dark:border-white/15 dark:text-ink-400">
             Nenhum produto em destaque encontrado. Execute o seed no banco de dados.
           </div>
         )}
+
+        <Link
+          href="/loja"
+          className="group mt-10 inline-flex items-center gap-2 font-display text-xs font-bold uppercase tracking-label text-ink-500 transition-colors hover:text-electric-600 sm:hidden dark:text-ink-300 dark:hover:text-electric-400"
+        >
+          Ver todos
+          <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+        </Link>
       </section>
 
-      {/* 4. Promotional Banner */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative rounded-2xl bg-amber-600 px-6 py-12 md:p-16 text-white overflow-hidden shadow-lg">
-          <div className="absolute right-0 top-0 bottom-0 opacity-15 hidden lg:block">
-            <img
-              src="https://images.unsplash.com/photo-1506152983158-b4a74a01c721?w=800&auto=format&fit=crop&q=80"
-              alt="Promo background"
-              className="h-full w-full object-cover"
-            />
-          </div>
-          <div className="relative max-w-xl">
-            <span className="font-extrabold tracking-wider text-amber-200 uppercase text-sm block mb-2">
-              Oferta Especial de Lançamento
-            </span>
-            <h2 className="text-3xl font-black uppercase tracking-tight sm:text-4xl">
-              GANHE 10% DE DESCONTO
-            </h2>
-            <p className="mt-4 text-base sm:text-lg text-white/90 leading-relaxed">
-              Utilize o cupom <span className="font-mono bg-white/20 px-2 py-0.5 rounded text-white font-bold">ACAIABA10</span> no checkout para compras acima de R$ 50,00 e garanta frete seguro em sua primeira compra.
+      {/* ================= CUPOM (informação real existente) ================= */}
+      <section className="border-y border-ink-100 dark:border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-4 py-8 text-center sm:px-6 md:flex-row md:text-left lg:px-8">
+          <div>
+            <p className="eyebrow !text-electric-600 dark:!text-electric-400">
+              Cupom ACAIABA10
             </p>
-            <div className="mt-8">
-              <Link
-                href="/loja"
-                className="rounded-lg bg-gray-950 hover:bg-gray-900 px-6 py-3 text-sm font-bold text-white transition-all uppercase tracking-wider shadow"
-              >
-                Ativar Desconto
-              </Link>
-            </div>
+            <p className="mt-2 text-sm text-ink-500 dark:text-ink-300">
+              10% de desconto em compras acima de R$ 50 — aplicado no checkout.
+            </p>
+          </div>
+          <Link href="/loja" className="btn-outline shrink-0 !px-6 !py-3">
+            Ativar desconto
+          </Link>
+        </div>
+      </section>
+
+      {/* ================= CATEGORIAS — composição assimétrica ================= */}
+      <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="eyebrow">Universo Acaiaba</p>
+            <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-ink-950 dark:text-white sm:text-5xl">
+              Explore por categoria.
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <CategoryTile
+            category={CATEGORIES[0]}
+            index={0}
+            className="aspect-[4/3] md:col-span-2 md:row-span-2 md:aspect-auto md:h-full md:min-h-[560px]"
+          />
+          <CategoryTile category={CATEGORIES[1]} index={1} className="aspect-[4/3] md:aspect-auto md:min-h-[270px]" />
+          <CategoryTile category={CATEGORIES[2]} index={2} className="aspect-[4/3] md:aspect-auto md:min-h-[270px]" />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:col-span-3">
+            <CategoryTile category={CATEGORIES[3]} index={3} className="aspect-[16/9]" />
+            <CategoryTile category={CATEGORIES[4]} index={4} className="aspect-[16/9]" />
           </div>
         </div>
       </section>
 
-      {/* 5. Offers Section ("Novidades e Promoções") */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-8">
+      {/* ================= OFERTAS ================= */}
+      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
+        <div className="flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
-              Melhores Ofertas
-            </h2>
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Produtos selecionados com descontos especiais para você
+            <p className="eyebrow !text-electric-600 dark:!text-electric-400">
+              Off Electric
             </p>
+            <h2 className="mt-3 font-display text-3xl font-black uppercase tracking-tight text-ink-950 dark:text-white sm:text-5xl">
+              Melhores ofertas.
+            </h2>
           </div>
           <Link
             href="/loja?sort=discount_desc"
-            className="hidden sm:inline-flex items-center text-sm font-semibold text-amber-600 hover:text-amber-500"
+            className="group hidden items-center gap-2 font-display text-xs font-bold uppercase tracking-label text-ink-500 transition-colors hover:text-electric-600 sm:inline-flex dark:text-ink-300 dark:hover:text-electric-400"
           >
-            <span>Ver ofertas</span>
-            <ChevronRight className="ml-1 h-4 w-4" />
+            Ver ofertas
+            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
 
         {offers.length > 0 ? (
-          <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 lg:grid-cols-4">
             {offers.map((product) => (
               <ProductCard key={product.id} {...product} />
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-gray-200 dark:border-slate-700 p-12 text-center text-gray-500 dark:text-gray-400">
+          <div className="mt-12 border border-dashed border-ink-200 py-20 text-center text-sm text-ink-400 dark:border-white/15 dark:text-ink-400">
             Nenhuma oferta especial no momento.
           </div>
         )}
       </section>
 
-      {/* 6. Brand Benefits */}
-      <section className="bg-slate-50 dark:bg-slate-900 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-3">
-            {[
-              { title: "Qualidade Comercial de Alta Linha", desc: "A curadoria da ACAIABA trabalha apenas com materiais importados e tecidos sustentáveis de altíssima durabilidade." },
-              { title: "Segurança de Dados Rigorosa", desc: "Trabalhamos com transações 100% criptografadas de ponta a ponta e gateways financeiros de padrão global." },
-              { title: "Logística Conectada e Rápida", desc: "Parceria direta com transportadoras locais e Correios para garantir postagem em até 24 horas úteis." }
-            ].map((benefit, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-4">
-                <CheckCircle className="h-10 w-10 text-amber-600 mb-4" />
-                <h3 className="font-extrabold text-lg text-slate-900 dark:text-white uppercase tracking-tight">{benefit.title}</h3>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed max-w-xs">{benefit.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. Testimonials Section */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center text-center mb-10">
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight uppercase sm:text-3xl">
-            Quem Usa, Recomenda
-          </h2>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Veja os depoimentos de clientes reais que marcam presença com a ACAIABA
+      {/* ================= MANIFESTO ================= */}
+      <section className="relative overflow-hidden bg-ink-950 py-24 text-white lg:py-36">
+        <p
+          aria-hidden="true"
+          className="text-outline pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 select-none whitespace-nowrap text-center font-display text-[16vw] font-black uppercase leading-none tracking-brand"
+        >
+          Electric
+        </p>
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="font-display text-[11px] font-bold uppercase tracking-brand text-electric-500">
+            Acaiaba — Manifesto
           </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {testimonials.map((test, idx) => (
-            <div key={idx} className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
-              <div className="flex items-center space-x-1 text-amber-500 mb-4">
-                {[...Array(test.stars)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-amber-500" />
-                ))}
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300 italic leading-relaxed">
-                &quot;{test.comment}&quot;
-              </p>
-              <div className="mt-4 border-t border-gray-50 pt-4">
-                <h4 className="font-bold text-sm text-slate-900 dark:text-white">{test.name}</h4>
-                <p className="text-xs text-amber-600 font-semibold">{test.role}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 8. Newsletter Subscription */}
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-2xl bg-slate-950 px-6 py-12 md:p-16 text-white text-center relative overflow-hidden shadow-lg">
-          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:16px_1px]" />
-          <div className="relative max-w-xl mx-auto space-y-4">
-            <h2 className="text-3xl font-black uppercase tracking-tight">
-              Faça Parte do Nosso Clube
-            </h2>
-            <p className="text-sm text-gray-400">
-              Receba novidades, coleções sazonais exclusivas e promoções secretas em primeira mão diretamente no seu e-mail.
+          <p className="mt-8 max-w-4xl font-display text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
+            Estilo não pede licença.{" "}
+            <span className="text-electric-500">Ele marca presença.</span>
+          </p>
+          <div className="mt-12 flex items-center gap-4">
+            <span className="h-px w-16 bg-electric-600" aria-hidden="true" />
+            <p className="font-display text-[11px] font-bold uppercase tracking-label text-ink-400">
+              Acaiaba Electric — em cada detalhe
             </p>
-            <NewsletterForm />
           </div>
         </div>
       </section>
 
+      {/* ================= NEWSLETTER ================= */}
+      <section className="border-t border-white/10 bg-ink-950 text-white">
+        <div className="mx-auto grid max-w-7xl items-end gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-24">
+          <div>
+            <p className="font-display text-[11px] font-bold uppercase tracking-brand text-electric-500">
+              Stay Electric
+            </p>
+            <h2 className="mt-4 font-display text-3xl font-black uppercase tracking-tight sm:text-5xl">
+              Fique por dentro.
+            </h2>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-400">
+              Coleções, drops e ofertas secretas — primeiro no seu e-mail.
+            </p>
+          </div>
+          <NewsletterForm />
+        </div>
+      </section>
     </div>
   );
 }
