@@ -88,35 +88,41 @@ export async function getCart(): Promise<CartView> {
   );
 
   const lines: CartLineView[] = cart.items
-    .map((item: { id: string; variantId: string; quantity: number }) => {
-      const variant = variantById.get(item.variantId);
-      if (!variant) return null;
-      const product = variant.product;
-      const basePrice = Number(variant.price ?? product.promotionalPrice ?? product.price);
-      const promo = product.promotionalPrice ? Number(product.promotionalPrice) : null;
-      const unitPrice = promo !== null && promo < basePrice ? promo : basePrice;
-      const quantity = item.quantity;
-      const availableStock = (variant.inventory?.quantity ?? 0) - (variant.inventory?.reserved ?? 0);
-      return {
-        id: item.id,
-        variantId: item.variantId,
-        productId: product.id,
-        name: product.name,
-        slug: product.slug,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        unitPrice,
-        basePrice,
-        quantity,
-        total: unitPrice * quantity,
-        imageUrl: product.images[0]?.url ?? null,
-        availableStock,
-      };
-    })
+    .map(
+      (item: {
+        id: string;
+        variantId: string;
+        quantity: number;
+      }): CartLineView | null => {
+        const variant = variantById.get(item.variantId);
+        if (!variant) return null;
+        const product = variant.product;
+        const basePrice = Number(variant.price ?? product.promotionalPrice ?? product.price);
+        const promo = product.promotionalPrice ? Number(product.promotionalPrice) : null;
+        const unitPrice = promo !== null && promo < basePrice ? promo : basePrice;
+        const quantity = item.quantity;
+        const availableStock = (variant.inventory?.quantity ?? 0) - (variant.inventory?.reserved ?? 0);
+        return {
+          id: item.id,
+          variantId: item.variantId,
+          productId: product.id,
+          name: product.name,
+          slug: product.slug,
+          sku: variant.sku,
+          size: variant.size,
+          color: variant.color,
+          unitPrice,
+          basePrice,
+          quantity,
+          total: unitPrice * quantity,
+          imageUrl: product.images[0]?.url ?? null,
+          availableStock,
+        };
+      }
+    )
     .filter(
-      (l: CartLineView | null): l is CartLineView =>
-        l !== null && l.availableStock >= 0
+      (line: CartLineView | null): line is CartLineView =>
+        line !== null && line.availableStock >= 0
     );
 
   const subtotal = lines.reduce((s, l) => s + l.total, 0);
