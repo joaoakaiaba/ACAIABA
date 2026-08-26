@@ -27,7 +27,7 @@ export default function CheckoutPage() {
       qrCode: string | null;
       qrCodeText: string | null;
       expiresAt: string | null;
-    };
+    } | null;
   } | null>(null);
 
   // Address form fields
