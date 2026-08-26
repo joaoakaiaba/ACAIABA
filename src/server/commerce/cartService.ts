@@ -31,6 +31,25 @@ export interface CartView {
 
 // Returns the authenticated customer's persisted cart (or an empty one). The
 // price shown is always server-derived — never trusted from the client.
+// Shape da variante juntada às linhas do carrinho
+// (include Prisma: product{images} + inventory).
+interface CartLineVariant {
+  id: string;
+  sku: string;
+  size: string | null;
+  color: string | null;
+  price: number | null;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    promotionalPrice: number | null;
+    images: { url: string }[];
+  };
+  inventory: { quantity: number; reserved: number } | null;
+}
+
 export async function getCart(): Promise<CartView> {
   const session = await getActiveSession();
   if (!session) {
@@ -46,37 +65,47 @@ export async function getCart(): Promise<CartView> {
     where: { customerId: customer.id },
     update: {},
     create: { customerId: customer.id },
-    include: {
-      items: {
-        include: {
-          variant: {
-            include: {
-              product: { include: { images: { orderBy: { order: "asc" }, take: 1 } } },
-              inventory: true,
-            },
-          },
-        },
-      },
-    },
+    include: { items: true },
   });
 
+  // CartItem não possui relação Prisma com ProductVariant (apenas o FK
+  // `variantId`), então as variantes são carregadas em uma segunda consulta
+  // e juntadas aqui — preservando o comportamento anterior do carrinho.
+  const variantIds: string[] = cart.items.map(
+    (i: { variantId: string }) => i.variantId
+  );
+  const variants = variantIds.length
+    ? await prisma.productVariant.findMany({
+        where: { id: { in: variantIds } },
+        include: {
+          product: { include: { images: { orderBy: { order: "asc" }, take: 1 } } },
+          inventory: true,
+        },
+      })
+    : [];
+  const variantById = new Map<string, CartLineVariant>(
+    (variants as unknown as CartLineVariant[]).map((v) => [v.id, v])
+  );
+
   const lines: CartLineView[] = cart.items
-    .map((item) => {
-      const product = item.variant.product;
-      const basePrice = Number(item.variant.price ?? product.promotionalPrice ?? product.price);
+    .map((item: { id: string; variantId: string; quantity: number }) => {
+      const variant = variantById.get(item.variantId);
+      if (!variant) return null;
+      const product = variant.product;
+      const basePrice = Number(variant.price ?? product.promotionalPrice ?? product.price);
       const promo = product.promotionalPrice ? Number(product.promotionalPrice) : null;
       const unitPrice = promo !== null && promo < basePrice ? promo : basePrice;
       const quantity = item.quantity;
-      const availableStock = (item.variant.inventory?.quantity ?? 0) - (item.variant.inventory?.reserved ?? 0);
+      const availableStock = (variant.inventory?.quantity ?? 0) - (variant.inventory?.reserved ?? 0);
       return {
         id: item.id,
         variantId: item.variantId,
         productId: product.id,
         name: product.name,
         slug: product.slug,
-        sku: item.variant.sku,
-        size: item.variant.size,
-        color: item.variant.color,
+        sku: variant.sku,
+        size: variant.size,
+        color: variant.color,
         unitPrice,
         basePrice,
         quantity,
@@ -85,7 +114,10 @@ export async function getCart(): Promise<CartView> {
         availableStock,
       };
     })
-    .filter((l) => l.availableStock >= 0);
+    .filter(
+      (l: CartLineView | null): l is CartLineView =>
+        l !== null && l.availableStock >= 0
+    );
 
   const subtotal = lines.reduce((s, l) => s + l.total, 0);
   const itemsCount = lines.reduce((s, l) => s + l.quantity, 0);
