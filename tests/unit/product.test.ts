@@ -45,7 +45,9 @@ describe("Product validation (server-authoritative)", () => {
   });
 
   it("should reject invalid status", () => {
-    expect(validateProduct(makeProduct({ status: "NOT_A_STATUS" })).ok).toBe(false);
+    // Payload sem tipo, como um body de API cru: o guard de runtime deve rejeitar.
+    const wireStatus: any = "NOT_A_STATUS";
+    expect(validateProduct(makeProduct({ status: wireStatus })).ok).toBe(false);
     expect(validateProduct(makeProduct({ status: "ACTIVE" })).ok).toBe(true);
   });
 

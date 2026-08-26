@@ -1,6 +1,13 @@
 // Pure, DB-free validation rules for products and variants. The server is the
 // only authority for product/pricing data; nothing here trusts the client.
 
+export type ProductStatusInput =
+  | "DRAFT"
+  | "ACTIVE"
+  | "INACTIVE"
+  | "OUT_OF_STOCK"
+  | "ARCHIVED";
+
 export interface ProductInput {
   name: string;
   slug: string;
@@ -13,7 +20,7 @@ export interface ProductInput {
   promotionalPrice?: number | null;
   isActive?: boolean;
   isFeatured?: boolean;
-  status?: string;
+  status?: ProductStatusInput;
 }
 
 export interface VariantInput {
