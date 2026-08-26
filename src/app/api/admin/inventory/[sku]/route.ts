@@ -33,7 +33,7 @@ export async function PATCH(
       minStock = minStockRaw;
     }
 
-    const inventory = await prisma.inventory.findUnique({
+    const inventory = await prisma.inventory.findFirst({
       where: { variant: { sku: params.sku } },
       include: { variant: { include: { product: true } } },
     });
