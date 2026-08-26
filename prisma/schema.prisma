@@ -353,7 +353,7 @@ model Payment {
   orderId       String        @unique
   order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   gateway       String
-  transactionId String?
+  transactionId String?       @unique
   status        PaymentStatus @default(PENDING)
   amount        Decimal       @db.Decimal(10, 2)
   method        PaymentMethod
