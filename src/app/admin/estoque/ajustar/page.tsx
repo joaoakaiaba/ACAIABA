@@ -19,7 +19,7 @@ export default async function StockAdjustPage({ searchParams }: { searchParams: 
     notFound();
   }
 
-  const inventory = await prisma.inventory.findUnique({
+  const inventory = await prisma.inventory.findFirst({
     where: { variant: { sku } },
     include: { variant: { include: { product: { include: { brand: true } } } } },
   });
