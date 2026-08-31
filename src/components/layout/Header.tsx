@@ -40,10 +40,10 @@ export default function Header() {
   ];
 
   const iconBtn =
-    "relative flex h-10 w-10 items-center justify-center text-noir-50 transition-colors hover:text-white";
+    "relative flex h-10 w-10 items-center justify-center text-fg transition-colors hover:text-muted";
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-noir-950/90 text-noir-50 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-line/15 bg-bg/90 text-fg backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:h-20 lg:px-8">
         {/* Mobile menu toggle */}
         <button
@@ -59,7 +59,7 @@ export default function Header() {
         {/* Wordmark — somente a marca */}
         <Link
           href="/"
-          className="font-display text-lg font-black uppercase tracking-[0.35em] text-noir-50 transition-colors hover:text-white lg:text-xl"
+          className="font-display text-lg font-black uppercase tracking-[0.35em] text-fg transition-colors hover:text-muted lg:text-xl"
           aria-label="ACAIABA — página inicial"
         >
           Acaiaba
@@ -71,12 +71,12 @@ export default function Header() {
             <Link
               key={link.name}
               href={link.href}
-              className="group relative font-display text-[11px] font-bold uppercase tracking-label text-noir-500 transition-colors hover:text-noir-50"
+              className="group relative font-display text-[11px] font-bold uppercase tracking-label text-muted transition-colors hover:text-fg"
             >
               {link.name}
               <span
                 aria-hidden="true"
-                className="absolute -bottom-1.5 left-0 h-px w-0 bg-noir-50 transition-all duration-300 group-hover:w-full"
+                className="absolute -bottom-1.5 left-0 h-px w-0 bg-fg transition-all duration-300 group-hover:w-full"
               />
             </Link>
           ))}
@@ -95,12 +95,12 @@ export default function Header() {
               placeholder="Buscar"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-40 border-b border-white/20 bg-transparent py-2 pl-8 pr-2 text-sm text-noir-50 placeholder-noir-500 outline-none transition-all focus:w-56 focus:border-noir-50"
+              className="w-40 border-b border-line/25 bg-transparent py-2 pl-8 pr-2 text-sm text-fg placeholder-muted outline-none transition-all focus:w-56 focus:border-fg"
             />
-            <Search className="pointer-events-none absolute left-0 top-2.5 h-4 w-4 text-noir-500" />
+            <Search className="pointer-events-none absolute left-0 top-2.5 h-4 w-4 text-muted" />
           </form>
 
-          <ThemeToggle className="text-noir-50 hover:text-white" />
+          <ThemeToggle className="text-fg hover:text-muted" />
 
           <Link
             href="/favoritos"
@@ -110,7 +110,7 @@ export default function Header() {
           >
             <Heart className="h-5 w-5" />
             {favoritesCount > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-noir-50 px-1 text-[9px] font-black text-noir-950">
+              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-fg px-1 text-[9px] font-black text-bg">
                 {favoritesCount}
               </span>
             )}
@@ -124,7 +124,7 @@ export default function Header() {
           >
             <ShoppingBag className="h-5 w-5" />
             {cartCount > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-noir-50 px-1 text-[9px] font-black text-noir-950">
+              <span className="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-fg px-1 text-[9px] font-black text-bg">
                 {cartCount}
               </span>
             )}
@@ -134,10 +134,10 @@ export default function Header() {
             <>
               <Link
                 href={isAdmin ? "/admin" : "/conta"}
-                className="ml-1 hidden h-10 items-center gap-2 border border-white/20 px-3 font-display text-[10px] font-bold uppercase tracking-label text-noir-50 transition-colors hover:border-noir-50 hover:text-white sm:flex"
+                className="ml-1 hidden h-10 items-center gap-2 border border-line/25 px-3 font-display text-[10px] font-bold uppercase tracking-label text-fg transition-colors hover:border-fg sm:flex"
                 title="Minha Conta"
               >
-                <span className="flex h-5 w-5 items-center justify-center bg-noir-50 font-display text-[9px] font-black text-noir-950">
+                <span className="flex h-5 w-5 items-center justify-center bg-fg font-display text-[9px] font-black text-bg">
                   {(user?.name?.[0] || "U").toUpperCase()}
                 </span>
                 <span className="max-w-[90px] truncate">{user?.name?.split(" ")[0] || "Conta"}</span>
@@ -162,7 +162,7 @@ export default function Header() {
 
       {/* Mobile overlay */}
       {isMenuOpen && (
-        <div className="border-t border-white/10 bg-noir-950 px-4 pb-10 pt-6 lg:hidden">
+        <div className="border-t border-line/15 bg-bg px-4 pb-10 pt-6 lg:hidden">
           <form onSubmit={handleSearch} className="relative w-full" role="search">
             <label htmlFor="header-search-mobile" className="sr-only">
               Buscar produtos
@@ -173,9 +173,9 @@ export default function Header() {
               placeholder="Buscar produtos..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full border-b border-white/20 bg-transparent py-3 pl-8 pr-2 text-base text-noir-50 placeholder-noir-500 outline-none focus:border-noir-50"
+              className="w-full border-b border-line/25 bg-transparent py-3 pl-8 pr-2 text-base text-fg placeholder-muted outline-none focus:border-fg"
             />
-            <Search className="pointer-events-none absolute left-0 top-3.5 h-4 w-4 text-noir-500" />
+            <Search className="pointer-events-none absolute left-0 top-3.5 h-4 w-4 text-muted" />
           </form>
 
           <nav className="mt-8 flex flex-col" aria-label="Navegação principal">
@@ -184,7 +184,7 @@ export default function Header() {
                 key={link.name}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="border-b border-white/10 py-4 font-display text-2xl font-black uppercase tracking-tight text-noir-50 transition-colors hover:text-white"
+                className="border-b border-line/15 py-4 font-display text-2xl font-black uppercase tracking-tight text-fg transition-colors hover:text-muted"
               >
                 {link.name}
               </Link>
@@ -197,14 +197,14 @@ export default function Header() {
                 <Link
                   href={isAdmin ? "/admin" : "/conta"}
                   onClick={() => setIsMenuOpen(false)}
-                  className="border border-white/20 px-5 py-3 font-display text-[11px] font-bold uppercase tracking-label text-noir-50"
+                  className="border border-line/25 px-5 py-3 font-display text-[11px] font-bold uppercase tracking-label text-fg"
                 >
                   Minha conta
                 </Link>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-label text-noir-500"
+                  className="flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-label text-muted"
                 >
                   <LogOut className="h-4 w-4" />
                   Sair
@@ -214,7 +214,7 @@ export default function Header() {
               <Link
                 href="/login"
                 onClick={() => setIsMenuOpen(false)}
-                className="border border-white/20 px-5 py-3 font-display text-[11px] font-bold uppercase tracking-label text-noir-50"
+                className="border border-line/25 px-5 py-3 font-display text-[11px] font-bold uppercase tracking-label text-fg"
               >
                 Entrar
               </Link>

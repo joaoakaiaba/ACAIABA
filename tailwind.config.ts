@@ -53,6 +53,13 @@ const config: Config = {
           500: "#707070",
           50: "#F5F5F0",
         },
+        // Tokens semânticos de tema (light/dark via CSS vars no globals.css)
+        bg: "rgb(var(--c-bg) / <alpha-value>)",
+        fg: "rgb(var(--c-fg) / <alpha-value>)",
+        muted: "rgb(var(--c-muted) / <alpha-value>)",
+        surface: "rgb(var(--c-surface) / <alpha-value>)",
+        raised: "rgb(var(--c-raised) / <alpha-value>)",
+        line: "rgb(var(--c-line) / <alpha-value>)",
         electric: {
           50: "#F3EFFE",
           100: "#E7DFFE",

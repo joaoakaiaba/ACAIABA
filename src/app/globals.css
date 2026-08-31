@@ -8,30 +8,43 @@
 
 :root {
   color-scheme: light;
-  --surface: #fafafb;
+  --surface: #f5f5f0;
   --surface-raised: #ffffff;
   --line: #ededf0;
+  /* Tokens semânticos (tripletas RGB p/ Tailwind com alpha) */
+  --c-bg: 245 245 240; /* #F5F5F0 */
+  --c-fg: 5 5 5; /* #050505 */
+  --c-muted: 112 112 112; /* #707070 */
+  --c-surface: 255 255 255; /* #FFFFFF */
+  --c-raised: 255 255 255;
+  --c-line: 5 5 5;
 }
 
 .dark {
   color-scheme: dark;
-  --surface: #08080c;
+  --surface: #050505;
   --surface-raised: #0e0e13;
   --line: rgba(255, 255, 255, 0.08);
+  --c-bg: 5 5 5; /* #050505 */
+  --c-fg: 245 245 240; /* #F5F5F0 */
+  --c-muted: 160 160 160; /* #A0A0A0 */
+  --c-surface: 10 10 10; /* #0A0A0A */
+  --c-raised: 21 21 21; /* #151515 */
+  --c-line: 255 255 255;
 }
 
 @layer base {
   body {
     min-height: 100vh;
-    background-color: var(--surface);
-    color: theme("colors.ink.900");
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
   .dark body {
-    background-color: var(--surface);
-    color: theme("colors.ink.100");
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
   }
 
   ::selection {

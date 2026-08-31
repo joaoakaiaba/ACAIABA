@@ -24,8 +24,8 @@ export interface MinimalProductCardProps {
   }>;
 }
 
-// Card editorial monocromático: imagem dominante, tipografia pequena,
-// sem radius/sombra. Favorito e adicionar-à-sacola continuam REAIS.
+// Card editorial monocromático e theme-aware: imagem dominante, tipografia
+// pequena, sem radius/sombra. Favorito e adicionar-à-sacola continuam REAIS.
 export default function MinimalProductCard({
   id,
   name,
@@ -76,7 +76,7 @@ export default function MinimalProductCard({
     <div className="group relative flex flex-col">
       <Link
         href={`/produto/${slug}`}
-        className="relative block aspect-[4/5] overflow-hidden bg-noir-800"
+        className="relative block aspect-[4/5] overflow-hidden bg-surface"
       >
         <img
           src={imageUrl}
@@ -94,14 +94,14 @@ export default function MinimalProductCard({
           aria-pressed={isFav}
           title={isFav ? "Remover dos favoritos" : "Adicionar aos favoritos"}
           className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center transition-colors ${
-            isFav ? "text-noir-50" : "text-noir-500 hover:text-noir-50"
+            isFav ? "text-fg" : "text-muted hover:text-fg"
           }`}
         >
           <Heart className={`h-5 w-5 ${isFav ? "fill-current" : ""}`} />
         </button>
 
         {stock === 0 && (
-          <span className="absolute left-3 top-3 bg-noir-950/80 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-label text-noir-50">
+          <span className="absolute left-3 top-3 bg-bg/80 px-2 py-1 font-display text-[10px] font-bold uppercase tracking-label text-fg">
             Esgotado
           </span>
         )}
@@ -111,7 +111,7 @@ export default function MinimalProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-noir-50 py-3 font-display text-[10px] font-black uppercase tracking-label text-noir-950 opacity-0 transition-all duration-300 ease-premium group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 lg:block"
+            className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-full bg-fg py-3 font-display text-[10px] font-black uppercase tracking-label text-bg opacity-0 transition-all duration-300 ease-premium group-hover:pointer-events-auto group-hover:translate-y-0 group-hover:opacity-100 lg:block"
           >
             Adicionar à sacola
           </button>
@@ -120,17 +120,17 @@ export default function MinimalProductCard({
 
       <div className="flex items-start justify-between gap-2 pt-3">
         <div>
-          <p className="font-display text-[10px] font-bold uppercase tracking-label text-noir-500">
+          <p className="font-display text-[10px] font-bold uppercase tracking-label text-muted">
             {brandName}
           </p>
-          <h3 className="mt-1 line-clamp-2 font-display text-xs font-bold uppercase tracking-wide text-noir-50">
+          <h3 className="mt-1 line-clamp-2 font-display text-xs font-bold uppercase tracking-wide text-fg">
             <Link href={`/produto/${slug}`}>{name}</Link>
           </h3>
         </div>
-        <p className="shrink-0 text-sm tabular-nums text-noir-500">
+        <p className="shrink-0 text-sm tabular-nums text-muted">
           R$ {activePrice.toFixed(2)}
           {hasDiscount && (
-            <span className="ml-1 text-[11px] text-noir-500 line-through">
+            <span className="ml-1 text-[11px] line-through">
               {price.toFixed(2)}
             </span>
           )}

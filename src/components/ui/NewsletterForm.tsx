@@ -24,7 +24,7 @@ export default function NewsletterForm() {
       {status === "success" ? (
         <div
           role="status"
-          className="border-b border-noir-50 pb-4 font-display text-sm font-bold uppercase tracking-label text-noir-50"
+          className="border-b border-fg pb-4 font-display text-sm font-bold uppercase tracking-label text-fg"
         >
           ✓ Inscrição confirmada. Bem-vindo ao movimento.
         </div>
@@ -42,14 +42,14 @@ export default function NewsletterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={status === "loading"}
-              className="w-full border-b border-white/25 bg-transparent pb-4 font-display text-sm font-bold uppercase tracking-label text-noir-50 placeholder-noir-500 outline-none transition-colors focus:border-noir-50 disabled:opacity-50"
+              className="w-full border-b border-line/30 bg-transparent pb-4 font-display text-sm font-bold uppercase tracking-label text-fg placeholder-muted outline-none transition-colors focus:border-fg disabled:opacity-50"
             />
           </div>
           <button
             type="submit"
             disabled={status === "loading"}
             aria-label="Inscrever"
-            className="flex h-12 w-12 shrink-0 items-center justify-center border border-white/25 text-noir-50 transition-all duration-300 hover:border-noir-50 hover:bg-noir-50 hover:text-noir-950 disabled:opacity-50"
+            className="flex h-12 w-12 shrink-0 items-center justify-center border border-line/30 text-fg transition-all duration-300 hover:bg-fg hover:text-bg disabled:opacity-50"
           >
             <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
           </button>

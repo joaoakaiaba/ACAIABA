@@ -86,8 +86,8 @@ export default async function Home() {
   const { featured, categories } = await getHomePageData();
 
   return (
-    <div className="bg-noir-950 text-noir-50">
-      {/* ============ HERO — campanha ============ */}
+    <div className="bg-bg text-fg">
+      {/* ============ HERO — campanha (acompanha o tema) ============ */}
       <section className="relative min-h-[92vh] overflow-hidden">
         <div className="mx-auto grid min-h-[92vh] max-w-7xl grid-cols-1 lg:grid-cols-2">
           {/* Texto */}
@@ -95,16 +95,16 @@ export default async function Home() {
             {/* Assinatura vertical */}
             <p
               aria-hidden="true"
-              className="text-vertical absolute left-2 top-1/2 hidden -translate-y-1/2 select-none font-display text-[10px] font-bold uppercase tracking-[0.6em] text-noir-500 lg:block"
+              className="text-vertical absolute left-2 top-1/2 hidden -translate-y-1/2 select-none font-display text-[10px] font-bold uppercase tracking-[0.6em] text-muted lg:block"
             >
               Acaiaba
             </p>
 
-            <p className="font-display text-[11px] font-bold uppercase tracking-label text-noir-500">
+            <p className="font-display text-[11px] font-bold uppercase tracking-label text-muted">
               Nova coleção disponível
             </p>
 
-            <h1 className="mt-6 font-display text-[15vw] font-black uppercase leading-[0.88] tracking-tight text-noir-50 sm:text-8xl lg:text-[6.5rem]">
+            <h1 className="mt-6 font-display text-[15vw] font-black uppercase leading-[0.88] tracking-tight text-fg sm:text-8xl lg:text-[6.5rem]">
               <span className="block">O estilo</span>
               <span className="block">que marca</span>
               <span className="block">presença.</span>
@@ -113,7 +113,7 @@ export default async function Home() {
             <div className="mt-12">
               <Link
                 href="/loja"
-                className="group inline-flex items-center gap-3 border border-noir-50 px-8 py-4 font-display text-xs font-black uppercase tracking-label text-noir-50 transition-colors duration-300 hover:bg-noir-50 hover:text-noir-950"
+                className="group inline-flex items-center gap-3 border border-fg px-8 py-4 font-display text-xs font-black uppercase tracking-label text-fg transition-colors duration-300 hover:bg-fg hover:text-bg"
               >
                 Explorar agora
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -126,28 +126,28 @@ export default async function Home() {
             <img
               src={HERO_IMAGE}
               alt="Campanha ACAIABA — o estilo que marca presença"
-              className="absolute inset-0 h-full w-full object-cover object-top grayscale contrast-125"
+              className="absolute inset-0 h-full w-full object-cover object-top contrast-125 grayscale"
             />
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-r from-noir-950 via-transparent to-transparent"
+              className="absolute inset-0 bg-gradient-to-r from-bg via-transparent to-transparent"
             />
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-noir-950 via-transparent to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-bg via-transparent to-transparent"
             />
           </div>
         </div>
 
         {/* Indicadores */}
-        <div className="absolute bottom-0 left-0 right-0 border-t border-white/10">
+        <div className="absolute bottom-0 left-0 right-0 border-t border-line/15">
           <div className="mx-auto flex max-w-7xl items-center gap-8 px-4 py-4 sm:px-6 lg:px-8">
             {["01", "02", "03"].map((n, i) => (
               <span
                 key={n}
                 aria-hidden="true"
                 className={`font-display text-[11px] font-bold tracking-label ${
-                  i === 0 ? "text-noir-50" : "text-noir-500/60"
+                  i === 0 ? "text-fg" : "text-muted/60"
                 }`}
               >
                 {n}
@@ -155,7 +155,7 @@ export default async function Home() {
             ))}
             <span
               aria-hidden="true"
-              className="ml-auto hidden font-display text-[10px] font-bold uppercase tracking-label text-noir-500 sm:block"
+              className="ml-auto hidden font-display text-[10px] font-bold uppercase tracking-label text-muted sm:block"
             >
               Acaiaba — o estilo que marca presença
             </span>
@@ -163,8 +163,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ============ BENEFÍCIOS ============ */}
-      <section className="border-b border-white/10">
+      {/* ============ BENEFÍCIOS — contraste proposital (preto no light, #151515 no dark) ============ */}
+      <section className="border-b border-line/15 bg-noir-950 text-noir-50 dark:bg-noir-800">
         <div className="mx-auto grid max-w-7xl grid-cols-1 divide-y divide-white/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
           {[
             { icon: Truck, title: "Frete grátis", micro: "Acima de R$199" },
@@ -184,15 +184,15 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ============ NEW DROP ============ */}
+      {/* ============ NEW DROP (acompanha o tema) ============ */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
         <div className="flex items-end justify-between gap-4">
-          <h2 className="font-display text-4xl font-black uppercase tracking-tight text-noir-50 sm:text-6xl">
+          <h2 className="font-display text-4xl font-black uppercase tracking-tight text-fg sm:text-6xl">
             New Drop
           </h2>
           <Link
             href="/loja"
-            className="group inline-flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-label text-noir-500 transition-colors hover:text-noir-50"
+            className="group inline-flex items-center gap-2 font-display text-[11px] font-bold uppercase tracking-label text-muted transition-colors hover:text-fg"
           >
             Ver todos
             <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -206,22 +206,22 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <div className="mt-12 border border-dashed border-white/15 px-4 py-24 text-center">
-            <p className="font-display text-xs font-bold uppercase tracking-label text-noir-500">
+          <div className="mt-12 border border-dashed border-line/20 px-4 py-24 text-center">
+            <p className="font-display text-xs font-bold uppercase tracking-label text-muted">
               Nenhum produto em destaque encontrado. Execute o seed no banco de dados.
             </p>
           </div>
         )}
       </section>
 
-      {/* ============ BANNER EDITORIAL ============ */}
-      <section className="grid grid-cols-1 lg:grid-cols-3">
+      {/* ============ BANNER EDITORIAL — propositalmente dark em ambos os temas ============ */}
+      <section className="grid grid-cols-1 bg-noir-950 text-noir-50 lg:grid-cols-3">
         <div className="relative min-h-[50vh] lg:min-h-[70vh]">
           <img
             src={CATEGORY_IMAGES.moda}
             alt="Editorial ACAIABA — moda"
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover grayscale contrast-125"
+            className="absolute inset-0 h-full w-full object-cover contrast-125 grayscale"
           />
         </div>
         <div className="flex flex-col items-start justify-center px-4 py-16 sm:px-6 lg:px-10 lg:py-0">
@@ -242,14 +242,14 @@ export default async function Home() {
             src={CATEGORY_IMAGES.fitness}
             alt="Editorial ACAIABA — fitness"
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover grayscale contrast-125"
+            className="absolute inset-0 h-full w-full object-cover contrast-125 grayscale"
           />
         </div>
       </section>
 
-      {/* ============ CATEGORIAS ============ */}
+      {/* ============ CATEGORIAS (acompanha o tema) ============ */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <h2 className="font-display text-4xl font-black uppercase tracking-tight text-noir-50 sm:text-6xl">
+        <h2 className="font-display text-4xl font-black uppercase tracking-tight text-fg sm:text-6xl">
           Categorias
         </h2>
 
@@ -259,7 +259,7 @@ export default async function Home() {
               <Link
                 key={cat.slug}
                 href={`/loja?categoria=${cat.slug}`}
-                className="group relative block aspect-[3/4] overflow-hidden border border-white/10 bg-noir-800"
+                className="group relative block aspect-[3/4] overflow-hidden border border-line/15 bg-surface"
               >
                 <img
                   src={CATEGORY_IMAGES[cat.slug] || FALLBACK_CATEGORY_IMAGE}
@@ -278,16 +278,16 @@ export default async function Home() {
             ))}
           </div>
         ) : (
-          <div className="mt-12 border border-dashed border-white/15 px-4 py-24 text-center">
-            <p className="font-display text-xs font-bold uppercase tracking-label text-noir-500">
+          <div className="mt-12 border border-dashed border-line/20 px-4 py-24 text-center">
+            <p className="font-display text-xs font-bold uppercase tracking-label text-muted">
               Categorias indisponíveis no momento.
             </p>
           </div>
         )}
       </section>
 
-      {/* ============ MANIFESTO ============ */}
-      <section className="border-t border-white/10">
+      {/* ============ MANIFESTO — contraste proposital (preto no light, elevado no dark) ============ */}
+      <section className="border-t border-line/15 bg-noir-950 dark:bg-noir-800">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-24 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-36">
           <h2 className="font-display text-5xl font-black uppercase leading-[0.92] tracking-tight text-noir-50 sm:text-7xl">
             Acaiaba é
@@ -313,16 +313,16 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ============ NEWSLETTER ============ */}
-      <section className="border-t border-white/10">
+      {/* ============ NEWSLETTER (acompanha o tema) ============ */}
+      <section className="border-t border-line/15">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-end gap-10 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-28">
-          <h2 className="font-display text-5xl font-black uppercase leading-[0.92] tracking-tight text-noir-50 sm:text-7xl">
+          <h2 className="font-display text-5xl font-black uppercase leading-[0.92] tracking-tight text-fg sm:text-7xl">
             Entre para
             <span className="block">o movimento.</span>
           </h2>
           <div>
             <NewsletterForm />
-            <p className="mt-4 text-[11px] text-noir-500">
+            <p className="mt-4 text-[11px] text-muted">
               Receba novidades, lançamentos e conteúdos exclusivos.
             </p>
           </div>
