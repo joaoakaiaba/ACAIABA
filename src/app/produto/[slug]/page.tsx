@@ -1,10 +1,12 @@
 import React from "react";
 import { notFound } from "next/navigation";
-import { prisma } from "@/lib/config/prisma";
 import ProductDetailView from "@/components/product/ProductDetailView";
 
 async function getProductAndRelatedData(slug: string) {
   try {
+    // Dynamic import: infra failure degrades to the existing not-found state
+    // instead of a hard 500; with the client available, behavior is unchanged.
+    const { prisma } = await import("@/lib/config/prisma");
     // 1. Fetch main product
     const product = await prisma.product.findUnique({
       where: { slug },
@@ -96,7 +98,7 @@ export default async function ProductDetailPage({ params }: { params: { slug: st
   }
 
   return (
-    <div className="bg-white">
+    <div className="bg-white dark:bg-slate-900">
       <ProductDetailView product={data.product} relatedProducts={data.relatedProducts} />
     </div>
   );

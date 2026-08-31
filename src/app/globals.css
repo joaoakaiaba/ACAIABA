@@ -2,13 +2,131 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------------------------------------------------------------------
+   ACAIABA — base monocromática premium (noir) + tokens legados (ink/electric)
+--------------------------------------------------------------------------- */
+
 :root {
-  --background: 255, 255, 255;
-  --foreground: 15, 23, 42;
+  color-scheme: light;
+  --surface: #f5f5f0;
+  --surface-raised: #ffffff;
+  --line: #ededf0;
+  /* Tokens semânticos (tripletas RGB p/ Tailwind com alpha) */
+  --c-bg: 245 245 240; /* #F5F5F0 */
+  --c-fg: 5 5 5; /* #050505 */
+  --c-muted: 112 112 112; /* #707070 */
+  --c-surface: 255 255 255; /* #FFFFFF */
+  --c-raised: 255 255 255;
+  --c-line: 5 5 5;
 }
 
-body {
-  color: rgb(var(--foreground));
-  background-color: rgb(var(--background));
-  min-height: 100vh;
+.dark {
+  color-scheme: dark;
+  --surface: #050505;
+  --surface-raised: #0e0e13;
+  --line: rgba(255, 255, 255, 0.08);
+  --c-bg: 5 5 5; /* #050505 */
+  --c-fg: 245 245 240; /* #F5F5F0 */
+  --c-muted: 160 160 160; /* #A0A0A0 */
+  --c-surface: 10 10 10; /* #0A0A0A */
+  --c-raised: 21 21 21; /* #151515 */
+  --c-line: 255 255 255;
+}
+
+@layer base {
+  body {
+    min-height: 100vh;
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .dark body {
+    background-color: rgb(var(--c-bg));
+    color: rgb(var(--c-fg));
+  }
+
+  ::selection {
+    background-color: theme("colors.noir.50");
+    color: theme("colors.noir.950");
+  }
+
+  /* Foco visível e consistente (acessibilidade) */
+  :focus-visible {
+    outline: 2px solid theme("colors.electric.500");
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Rótulo editorial: caixa alta, tracking largo, peso médio. */
+  .eyebrow {
+    @apply font-display text-[11px] font-bold uppercase tracking-label text-ink-400 dark:text-ink-300;
+  }
+
+  /* Botões — geometria contida, sem sombras pesadas. */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-display text-xs font-bold uppercase tracking-label transition-all duration-300 ease-premium select-none whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-40;
+  }
+
+  .btn-primary {
+    @apply btn rounded-md bg-ink-950 px-7 py-3.5 text-white hover:bg-electric-600 active:scale-[0.98] dark:bg-white dark:text-ink-950 dark:hover:bg-electric-500 dark:hover:text-white;
+  }
+
+  .btn-electric {
+    @apply btn rounded-md bg-electric-600 px-7 py-3.5 text-white shadow-glow hover:bg-electric-500 active:scale-[0.98];
+  }
+
+  .btn-outline {
+    @apply btn rounded-md border border-ink-200 bg-transparent px-7 py-3.5 text-ink-900 hover:border-ink-950 hover:bg-ink-950 hover:text-white dark:border-white/20 dark:text-white dark:hover:border-white dark:hover:bg-white dark:hover:text-ink-950;
+  }
+
+  .btn-ghost {
+    @apply btn rounded-md px-4 py-2 text-ink-500 hover:text-ink-950 dark:text-ink-300 dark:hover:text-white;
+  }
+
+  /* Campo de formulário com linha fina (hairline). */
+  .field {
+    @apply w-full rounded-md border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 placeholder-ink-400 outline-none transition-colors focus:border-electric-500 dark:border-white/15 dark:bg-ink-925 dark:text-ink-100 dark:placeholder-ink-500 dark:focus:border-electric-400;
+  }
+
+  /* Cartão de superfície elevada discreta. */
+  .surface-card {
+    @apply rounded-card border border-ink-100 bg-white shadow-card dark:border-white/10 dark:bg-ink-925 dark:shadow-card-dark;
+  }
+}
+
+@layer utilities {
+  /* Palavra fantasma editorial: só contorno, sem preenchimento. */
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.09);
+  }
+
+  /* Texto vertical (assinatura editorial do hero). */
+  .text-vertical {
+    writing-mode: vertical-rl;
+  }
+
+  /* Esconde scrollbar em trilhos horizontais (mobile), mantendo scroll. */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Respeita usuários que preferem menos movimento. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -29,7 +29,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-      <h1 className="text-3xl font-black text-slate-900 tracking-tight uppercase mb-8">
+      <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight uppercase mb-8">
         Seu Carrinho
       </h1>
 
@@ -43,17 +43,17 @@ export default function CartPage() {
               return (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-xl border border-gray-100 bg-white shadow-sm gap-4"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm gap-4"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 border border-gray-100">
+                    <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg bg-gray-50 dark:bg-slate-900 border border-gray-100 dark:border-slate-800">
                       <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 text-sm hover:text-amber-600">
+                      <h3 className="font-bold text-slate-900 dark:text-white text-sm hover:text-amber-600">
                         <Link href={`/produto/${item.sku.toLowerCase().split("-")[0]}`}>{item.name}</Link>
                       </h3>
-                      <p className="text-xs text-gray-500 mt-1 font-mono uppercase">SKU: {item.sku}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono uppercase">SKU: {item.sku}</p>
                       <p className="text-xs text-amber-600 font-semibold mt-1">
                         Tamanho: {item.size || "Único"} / Cor: {item.color || "Padrão"}
                       </p>
@@ -63,19 +63,19 @@ export default function CartPage() {
                   {/* Quantity and Price section */}
                   <div className="flex items-center justify-between sm:justify-end gap-6 sm:space-x-8">
                     {/* Quantity selectors */}
-                    <div className="flex items-center border border-gray-200 rounded-lg h-9 bg-white">
+                    <div className="flex items-center border border-gray-200 dark:border-slate-700 rounded-lg h-9 bg-white dark:bg-slate-900">
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                        className="px-3 text-gray-500 hover:text-amber-600 font-bold"
+                        className="px-3 text-gray-500 dark:text-gray-400 hover:text-amber-600 font-bold"
                       >
                         -
                       </button>
-                      <span className="px-2 text-xs font-bold font-mono text-gray-800">{item.quantity}</span>
+                      <span className="px-2 text-xs font-bold font-mono text-gray-800 dark:text-gray-100">{item.quantity}</span>
                       <button
                         type="button"
                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        className="px-3 text-gray-500 hover:text-amber-600 font-bold"
+                        className="px-3 text-gray-500 dark:text-gray-400 hover:text-amber-600 font-bold"
                       >
                         +
                       </button>
@@ -83,7 +83,7 @@ export default function CartPage() {
 
                     {/* Price and Subtotal */}
                     <div className="text-right min-w-[80px]">
-                      <p className="text-sm font-extrabold text-slate-950">
+                      <p className="text-sm font-extrabold text-slate-950 dark:text-white">
                         R$ {(itemPrice * item.quantity).toFixed(2)}
                       </p>
                       <p className="text-[10px] text-gray-400">
@@ -108,13 +108,13 @@ export default function CartPage() {
 
           {/* Checkout & Order Summary Card */}
           <div className="space-y-6">
-            <div className="rounded-xl border border-gray-100 bg-slate-50 p-6 shadow-sm">
-              <h3 className="font-extrabold text-slate-900 uppercase tracking-tight border-b border-gray-200 pb-4 mb-4">
+            <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-6 shadow-sm">
+              <h3 className="font-extrabold text-slate-900 dark:text-white uppercase tracking-tight border-b border-gray-200 dark:border-slate-700 pb-4 mb-4">
                 Resumo do Pedido
               </h3>
 
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Subtotal</span>
                   <span className="font-bold font-mono">R$ {subtotal.toFixed(2)}</span>
                 </div>
@@ -129,27 +129,27 @@ export default function CartPage() {
                   </div>
                 )}
 
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-gray-600 dark:text-gray-300">
                   <span>Frete</span>
                   <span className="font-bold text-xs uppercase text-gray-400">Calcular no checkout</span>
                 </div>
 
-                <div className="border-t border-gray-200 pt-4 flex justify-between text-slate-950">
+                <div className="border-t border-gray-200 dark:border-slate-700 pt-4 flex justify-between text-slate-950 dark:text-white">
                   <span className="font-black uppercase text-base">Total</span>
                   <span className="text-lg font-black font-mono">R$ {total.toFixed(2)}</span>
                 </div>
               </div>
 
               {/* Coupon Form */}
-              <form onSubmit={handleApplyCoupon} className="mt-6 border-t border-gray-200 pt-6 space-y-2">
-                <label className="text-xs font-black text-gray-900 uppercase tracking-wider block">Cupom de Desconto</label>
+              <form onSubmit={handleApplyCoupon} className="mt-6 border-t border-gray-200 dark:border-slate-700 pt-6 space-y-2">
+                <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block">Cupom de Desconto</label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     placeholder="Ex: ACAIABA10"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
-                    className="flex-grow rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs outline-none focus:border-amber-500 uppercase font-mono"
+                    className="flex-grow rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs outline-none focus:border-amber-500 uppercase font-mono"
                   />
                   <button
                     type="submit"
@@ -183,10 +183,10 @@ export default function CartPage() {
 
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed border-gray-200 py-24 text-center px-4 max-w-2xl mx-auto">
+        <div className="rounded-2xl border border-dashed border-gray-200 dark:border-slate-700 py-24 text-center px-4 max-w-2xl mx-auto">
           <ShoppingBag className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-lg font-bold text-gray-800 uppercase tracking-tight">Seu carrinho está vazio</h3>
-          <p className="mt-2 text-sm text-gray-500 max-w-xs mx-auto">
+          <h3 className="mt-4 text-lg font-bold text-gray-800 dark:text-gray-100 uppercase tracking-tight">Seu carrinho está vazio</h3>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-xs mx-auto">
             Navegue pelos nossos segmentos de calçados, fitness e moda para encontrar as melhores ofertas.
           </p>
           <div className="mt-6">

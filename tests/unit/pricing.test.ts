@@ -1,65 +1,82 @@
 import { describe, it, expect } from "vitest";
+import {
+  computeSubtotal,
+  applyCouponDiscount,
+  computePricing,
+  type PricingLine,
+} from "../../src/lib/commerce/pricing";
 
-function calculateSubtotal(items: { price: number; quantity: number }[]): number {
-  return items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+function makeLine(overrides: Partial<PricingLine> = {}): PricingLine {
+  return {
+    variantId: "v1",
+    productId: "p1",
+    name: "Produto",
+    sku: "SKU-1",
+    size: "M",
+    color: null,
+    unitPrice: 100,
+    quantity: 2,
+    ...overrides,
+  };
 }
 
-function calculateDiscount(subtotal: number, coupon: { type: "PERCENTAGE" | "FIXED_AMOUNT"; value: number; minSubtotal: number }) {
-  if (subtotal < coupon.minSubtotal) {
-    return 0;
-  }
-
-  if (coupon.type === "PERCENTAGE") {
-    return Number((subtotal * (coupon.value / 100)).toFixed(2));
-  } else {
-    return Math.min(coupon.value, subtotal);
-  }
-}
-
-describe("Pricing and Coupon Calculations", () => {
-  const items = [
-    { price: 100.00, quantity: 2 }, // 200
-    { price: 50.00, quantity: 1 },  // 50
-  ];
-
-  it("should calculate correct subtotal", () => {
-    const subtotal = calculateSubtotal(items);
-    expect(subtotal).toBe(250.00);
+describe("Pricing (server-authoritative)", () => {
+  it("should compute subtotal from server-derived unit prices", () => {
+    const lines = [
+      makeLine({ unitPrice: 100, quantity: 2 }), // 200
+      makeLine({ variantId: "v2", unitPrice: 50, quantity: 1 }), // 50
+    ];
+    expect(computeSubtotal(lines)).toBe(250);
   });
 
-  it("should apply percentage coupon correctly", () => {
-    const subtotal = 250.00;
-    const coupon = {
-      type: "PERCENTAGE" as const,
-      value: 10, // 10%
-      minSubtotal: 50.00,
-    };
-
-    const discount = calculateDiscount(subtotal, coupon);
-    expect(discount).toBe(25.00);
+  it("should apply a percentage coupon", () => {
+    const discount = applyCouponDiscount(250, {
+      code: "ACAIABA10",
+      type: "PERCENTAGE",
+      value: 10,
+      minSubtotal: 50,
+    });
+    expect(discount).toBe(25);
   });
 
-  it("should apply fixed amount coupon correctly", () => {
-    const subtotal = 250.00;
-    const coupon = {
-      type: "FIXED_AMOUNT" as const,
-      value: 50.00,
-      minSubtotal: 200.00,
-    };
-
-    const discount = calculateDiscount(subtotal, coupon);
-    expect(discount).toBe(50.00);
+  it("should apply a fixed-amount coupon capped at the subtotal", () => {
+    expect(applyCouponDiscount(100, { code: "B", type: "FIXED_AMOUNT", value: 50, minSubtotal: 10 })).toBe(50);
+    // Cap at subtotal (never negative total).
+    expect(applyCouponDiscount(30, { code: "B", type: "FIXED_AMOUNT", value: 50, minSubtotal: 10 })).toBe(30);
   });
 
-  it("should return zero discount if subtotal is below coupon minSubtotal", () => {
-    const subtotal = 150.00;
-    const coupon = {
-      type: "FIXED_AMOUNT" as const,
-      value: 50.00,
-      minSubtotal: 200.00,
-    };
+  it("should return zero discount when subtotal is below the coupon minimum", () => {
+    expect(applyCouponDiscount(40, { code: "B", type: "FIXED_AMOUNT", value: 50, minSubtotal: 100 })).toBe(0);
+  });
 
-    const discount = calculateDiscount(subtotal, coupon);
-    expect(discount).toBe(0.00);
+  it("should compute a full pricing result with no coupon", () => {
+    const res = computePricing([makeLine({ unitPrice: 100, quantity: 2 })], null);
+    expect(res.subtotal).toBe(200);
+    expect(res.discount).toBe(0);
+    expect(res.total).toBe(200);
+    expect(res.discountReason).toBeNull();
+  });
+
+  it("should compute a full pricing result with coupon", () => {
+    const res = computePricing([makeLine({ unitPrice: 100, quantity: 2 })], {
+      code: "ACAIABA10",
+      type: "PERCENTAGE",
+      value: 10,
+      minSubtotal: 50,
+    });
+    expect(res.subtotal).toBe(200);
+    expect(res.discount).toBe(20);
+    expect(res.total).toBe(180);
+    expect(res.discountReason).toBe("ACAIABA10");
+  });
+
+  it("should never produce a negative total", () => {
+    const res = computePricing([makeLine({ unitPrice: 10, quantity: 1 })], {
+      code: "X",
+      type: "FIXED_AMOUNT",
+      value: 100,
+      minSubtotal: 0,
+    });
+    expect(res.total).toBe(0);
   });
 });

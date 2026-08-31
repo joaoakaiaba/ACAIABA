@@ -1,46 +1,63 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Mail, Lock, ShieldAlert } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isAdmin } = useAuth();
+
+  const redirectTo = searchParams.get("redirect") || "";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Simulated login endpoint integration to avoid hardcoded credentials but have functional UX
-    setTimeout(() => {
-      setLoading(false);
-      if (email === "admin@acaiaba.com" && password === "acaiaba_admin_2026") {
-        // Simple routing for testing
-        router.push("/admin");
-      } else {
-        setError("Credenciais inválidas. Use o usuário administrador do seed para testar.");
-      }
-    }, 1000);
+    const result = await login(email, password);
+    setLoading(false);
+
+    if (!result.success) {
+      setError(result.error || "Falha ao entrar.");
+      return;
+    }
+
+    // Redirect to the intended destination, or to the admin/conta area otherwise.
+    if (redirectTo && redirectTo.startsWith("/")) {
+      router.push(redirectTo);
+      return;
+    }
+    router.push(isAdmin ? "/admin" : "/conta");
   };
 
   return (
     <div className="mx-auto max-w-md px-4 py-24">
-      <div className="rounded-xl border border-gray-100 bg-white p-8 shadow-sm space-y-6">
-        
+      <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-sm space-y-6">
+
         <div className="text-center">
           <span className="bg-amber-600 px-3 py-1 text-sm font-black tracking-wider text-white uppercase rounded-md inline-block">
             ACAIABA
           </span>
-          <h1 className="text-2xl font-black text-slate-900 uppercase tracking-tight mt-4">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mt-4">
             Acessar Conta
           </h1>
-          <p className="text-xs text-gray-500 mt-1">Insira suas credenciais abaixo</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Insira suas credenciais abaixo</p>
         </div>
 
         {error && (
@@ -52,7 +69,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-xs font-black text-gray-900 uppercase tracking-wider block mb-2">E-mail</label>
+            <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block mb-2">E-mail</label>
             <div className="relative">
               <input
                 type="email"
@@ -60,14 +77,14 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Ex: admin@acaiaba.com"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
               />
               <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-black text-gray-900 uppercase tracking-wider block mb-2">Senha</label>
+            <label className="text-xs font-black text-gray-900 dark:text-gray-100 uppercase tracking-wider block mb-2">Senha</label>
             <div className="relative">
               <input
                 type="password"
@@ -75,7 +92,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white"
+                className="w-full rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-900 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-amber-500 focus:bg-white dark:focus:bg-slate-900"
               />
               <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-gray-400" />
             </div>
@@ -90,8 +107,8 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="text-center border-t border-gray-100 pt-6">
-          <p className="text-xs text-gray-500">
+        <div className="text-center border-t border-gray-100 dark:border-slate-800 pt-6">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Não tem uma conta?{" "}
             <Link href="/cadastro" className="font-bold text-amber-600 hover:text-amber-500">
               Cadastre-se agora
