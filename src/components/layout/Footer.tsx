@@ -8,139 +8,90 @@ export default function Footer() {
   const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5511999999999";
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20os%20produtos%20da%20ACAIABA!`;
 
-  const benefits = [
-    { value: "Frete", label: "Rápido para todo o Brasil" },
-    { value: "100%", label: "Compra segura e criptografada" },
-    { value: "30 dias", label: "Para trocas e devoluções" },
-    { value: "PIX", label: "Confirmação instantânea" },
-  ];
+  const linkCls =
+    "text-sm text-noir-500 transition-colors hover:text-noir-50";
 
   return (
-    <footer className="border-t border-white/10 bg-ink-950 text-ink-300">
-      {/* Faixa de confiança — tipográfica, sem ícones */}
-      <div className="border-b border-white/10">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 divide-x divide-white/10 lg:grid-cols-4">
-          {benefits.map((b) => (
-            <div key={b.value} className="px-6 py-8 text-center lg:py-10">
-              <p className="font-display text-2xl font-black uppercase tracking-tight text-electric-500 lg:text-3xl">
-                {b.value}
-              </p>
-              <p className="mt-1.5 text-[11px] font-medium uppercase tracking-label text-ink-400">
-                {b.label}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Conteúdo principal */}
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-y-12 md:grid-cols-2 lg:grid-cols-4 lg:gap-x-8">
-          {/* Marca */}
-          <div className="space-y-5">
-            <Link href="/" className="inline-flex flex-col leading-none" aria-label="ACAIABA — página inicial">
-              <span className="font-display text-2xl font-black uppercase tracking-brand text-white">
-                Acaiaba
-              </span>
-              <span className="mt-1.5 flex items-center gap-1.5">
-                <span className="h-px w-5 bg-electric-500" aria-hidden="true" />
-                <span className="font-display text-[10px] font-bold uppercase tracking-brand text-ink-400">
-                  Eletric
-                </span>
-              </span>
-            </Link>
-            <p className="max-w-xs text-sm leading-relaxed text-ink-400">
-              O estilo que marca presença. Curadoria de alto padrão em calçados,
-              fitness, moda, casa e beleza.
-            </p>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-md border border-white/15 px-4 py-2.5 font-display text-[11px] font-bold uppercase tracking-label text-white transition-colors hover:border-electric-500 hover:text-electric-400"
-            >
-              Atendimento via WhatsApp
-            </a>
-          </div>
-
-          {/* Categorias */}
-          <nav aria-label="Categorias">
-            <h3 className="eyebrow !text-white">Categorias</h3>
-            <ul className="mt-5 space-y-3">
-              {[
-                { href: "/loja?categoria=calcados", label: "Calçados & Tênis" },
-                { href: "/loja?categoria=fitness", label: "Fitness & Academia" },
-                { href: "/loja?categoria=moda", label: "Moda Casual" },
-                { href: "/loja?categoria=casa-enxoval", label: "Casa & Enxoval" },
-                { href: "/loja?categoria=beleza-cuidados", label: "Beleza & Cuidados" },
-              ].map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-ink-400 transition-colors hover:text-electric-400"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Ajuda */}
-          <nav aria-label="Ajuda e suporte">
-            <h3 className="eyebrow !text-white">Ajuda & Suporte</h3>
-            <ul className="mt-5 space-y-3">
-              {[
-                { href: "/contato", label: "Fale Conosco" },
-                { href: "/politicas/entregas", label: "Política de Envios" },
-                { href: "/politicas/trocas", label: "Trocas e Devoluções" },
-                { href: "/politicas/privacidade", label: "Privacidade & LGPD" },
-              ].map((l) => (
-                <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-ink-400 transition-colors hover:text-electric-400"
-                  >
-                    {l.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* Pagamento */}
-          <div>
-            <h3 className="eyebrow !text-white">Pagamento & Segurança</h3>
-            <p className="mt-5 text-sm leading-relaxed text-ink-400">
-              Cartão de crédito em até 10x, débito, boleto e PIX com confirmação
-              instantânea. Transações 100% criptografadas.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {["PIX", "Crédito 10x", "Boleto"].map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-sm border border-white/10 px-2.5 py-1.5 font-display text-[10px] font-bold uppercase tracking-label text-ink-300"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Wordmark gigante — assinatura editorial */}
-        <div className="mt-16 select-none overflow-hidden" aria-hidden="true">
-          <p className="whitespace-nowrap text-center font-display text-[16vw] font-black uppercase leading-none tracking-brand text-white/[0.04] lg:text-[11rem]">
+    <footer className="border-t border-white/10 bg-noir-950 text-noir-50">
+      <div className="mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 lg:px-8 lg:pt-24">
+        {/* Marca + manifesto curto */}
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+          <p className="font-display text-5xl font-black uppercase leading-none tracking-[0.18em] text-noir-50 sm:text-7xl">
             Acaiaba
           </p>
+          <p className="max-w-md text-sm leading-relaxed text-noir-500 lg:justify-self-end">
+            ACAIABA é uma marca construída para quem faz da presença o seu
+            estilo de vida. O estilo que marca presença.
+          </p>
+        </div>
+
+        {/* Colunas reais */}
+        <div className="mt-16 grid grid-cols-2 gap-10 border-t border-white/10 pt-12 md:grid-cols-4 lg:mt-24">
+          <nav aria-label="Shop">
+            <h3 className="font-display text-[11px] font-bold uppercase tracking-label text-noir-50">
+              Shop
+            </h3>
+            <ul className="mt-5 space-y-3">
+              <li><Link href="/loja" className={linkCls}>Todos os produtos</Link></li>
+              <li><Link href="/loja?sort=latest" className={linkCls}>Novidades</Link></li>
+              <li><Link href="/loja" className={linkCls}>Mais vendidos</Link></li>
+              <li><Link href="/loja?sort=discount_desc" className={linkCls}>Promoções</Link></li>
+            </ul>
+          </nav>
+
+          <nav aria-label="Coleções">
+            <h3 className="font-display text-[11px] font-bold uppercase tracking-label text-noir-50">
+              Coleções
+            </h3>
+            <ul className="mt-5 space-y-3">
+              <li><Link href="/loja?categoria=calcados" className={linkCls}>Calçados</Link></li>
+              <li><Link href="/loja?categoria=fitness" className={linkCls}>Fitness</Link></li>
+              <li><Link href="/loja?categoria=moda" className={linkCls}>Moda</Link></li>
+              <li><Link href="/loja?categoria=casa-enxoval" className={linkCls}>Casa</Link></li>
+              <li><Link href="/loja?categoria=beleza-cuidados" className={linkCls}>Beleza</Link></li>
+            </ul>
+          </nav>
+
+          <nav aria-label="Ajuda">
+            <h3 className="font-display text-[11px] font-bold uppercase tracking-label text-noir-50">
+              Ajuda
+            </h3>
+            <ul className="mt-5 space-y-3">
+              <li><Link href="/contato" className={linkCls}>Fale conosco</Link></li>
+              <li><Link href="/politicas/trocas" className={linkCls}>Trocas e devoluções</Link></li>
+              <li><Link href="/politicas/entregas" className={linkCls}>Entrega</Link></li>
+              <li><Link href="/politicas/privacidade" className={linkCls}>Privacidade</Link></li>
+            </ul>
+          </nav>
+
+          <div>
+            <h3 className="font-display text-[11px] font-bold uppercase tracking-label text-noir-50">
+              Sobre
+            </h3>
+            <ul className="mt-5 space-y-3">
+              <li><Link href="/contato" className={linkCls}>Nossa história</Link></li>
+              <li><Link href="/contato" className={linkCls}>Contato</Link></li>
+              <li>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkCls}
+                >
+                  WhatsApp
+                </a>
+              </li>
+              <li><Link href="/politicas/privacidade" className={linkCls}>Política</Link></li>
+            </ul>
+          </div>
         </div>
 
         {/* Base */}
-        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-8 sm:flex-row">
-          <p className="text-xs text-ink-500">
+        <div className="mt-16 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-8 sm:flex-row sm:items-center">
+          <p className="text-[11px] text-noir-500">
             &copy; {currentYear} ACAIABA Store. Todos os direitos reservados. CNPJ: 12.345.678/0001-99.
           </p>
-          <p className="font-display text-[11px] font-bold uppercase tracking-label text-ink-400">
+          <p className="font-display text-[10px] font-bold uppercase tracking-label text-noir-500">
             O estilo que marca presença.
           </p>
         </div>

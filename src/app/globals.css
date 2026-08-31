@@ -3,9 +3,7 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------------
-   ACAIABA — Direção C (Fashion Premium)
-   Base: papel/tinta neutros; dark mode como superfície quase preta intencional.
-   O elétrico (electric) é assinatura, não fundo.
+   ACAIABA — base monocromática premium (noir) + tokens legados (ink/electric)
 --------------------------------------------------------------------------- */
 
 :root {
@@ -37,8 +35,8 @@
   }
 
   ::selection {
-    background-color: theme("colors.electric.600");
-    color: #ffffff;
+    background-color: theme("colors.noir.50");
+    color: theme("colors.noir.950");
   }
 
   /* Foco visível e consistente (acessibilidade) */
@@ -91,6 +89,11 @@
   .text-outline {
     color: transparent;
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.09);
+  }
+
+  /* Texto vertical (assinatura editorial do hero). */
+  .text-vertical {
+    writing-mode: vertical-rl;
   }
 
   /* Esconde scrollbar em trilhos horizontais (mobile), mantendo scroll. */

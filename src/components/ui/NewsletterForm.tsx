@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Send } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export default function NewsletterForm() {
   const [email, setEmail] = useState("");
@@ -20,33 +20,38 @@ export default function NewsletterForm() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-md">
+    <div className="w-full">
       {status === "success" ? (
         <div
           role="status"
-          className="rounded-md border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-semibold text-emerald-400"
+          className="border-b border-noir-50 pb-4 font-display text-sm font-bold uppercase tracking-label text-noir-50"
         >
-          ✓ Obrigado por se inscrever! Fique de olho no seu e-mail para novidades exclusivas.
+          ✓ Inscrição confirmada. Bem-vindo ao movimento.
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <input
-            type="email"
-            placeholder="Seu melhor e-mail"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={status === "loading"}
-            aria-label="Seu melhor e-mail"
-            className="w-full rounded-md border border-white/15 bg-white/5 px-4 py-3 text-sm text-white placeholder-ink-500 outline-none transition-colors focus:border-electric-500 disabled:opacity-50"
-          />
+        <form onSubmit={handleSubmit} className="group flex items-end gap-4">
+          <div className="flex-1">
+            <label htmlFor="newsletter-email" className="sr-only">
+              Seu melhor e-mail
+            </label>
+            <input
+              id="newsletter-email"
+              type="email"
+              required
+              placeholder="SEU MELHOR E-MAIL"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={status === "loading"}
+              className="w-full border-b border-white/25 bg-transparent pb-4 font-display text-sm font-bold uppercase tracking-label text-noir-50 placeholder-noir-500 outline-none transition-colors focus:border-noir-50 disabled:opacity-50"
+            />
+          </div>
           <button
             type="submit"
             disabled={status === "loading"}
-            className="btn-electric shrink-0"
+            aria-label="Inscrever"
+            className="flex h-12 w-12 shrink-0 items-center justify-center border border-white/25 text-noir-50 transition-all duration-300 hover:border-noir-50 hover:bg-noir-50 hover:text-noir-950 disabled:opacity-50"
           >
-            <span>{status === "loading" ? "Inscrito..." : "Inscrever"}</span>
-            <Send className="h-4 w-4" />
+            <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-0.5" />
           </button>
         </form>
       )}

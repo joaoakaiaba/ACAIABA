@@ -46,6 +46,13 @@ const config: Config = {
           950: "#08080C",
         },
         paper: "#FAFAFB",
+        noir: {
+          950: "#050505",
+          900: "#0A0A0A",
+          800: "#151515",
+          500: "#707070",
+          50: "#F5F5F0",
+        },
         electric: {
           50: "#F3EFFE",
           100: "#E7DFFE",

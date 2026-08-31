@@ -13,7 +13,7 @@ const OPTIONS: Array<{ value: ThemeMode; label: string; icon: React.ReactNode }>
 // Theme toggle button that cycles light → dark → system with an accessible popover.
 // Renders a clearly-visible icon (sun in light, moon in dark, monitor in system)
 // with proper contrast in both themes and a tooltip for accessibility.
-export default function ThemeToggle() {
+export default function ThemeToggle({ className = "" }: { className?: string }) {
   const { mode, setMode } = useTheme();
   const [open, setOpen] = useState(false);
 
@@ -25,7 +25,10 @@ export default function ThemeToggle() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-600 transition-colors hover:text-ink-950 dark:text-ink-300 dark:hover:text-white"
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors ${
+          className ||
+          "text-ink-600 hover:text-ink-950 dark:text-ink-300 dark:hover:text-white"
+        }`}
         title={`Tema: ${label} — clique para alterar`}
         aria-label="Alternar tema"
         aria-haspopup="menu"
