@@ -20,12 +20,20 @@ function resolveMode(mode: ThemeMode, systemDark: boolean): "light" | "dark" {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Read persisted mode synchronously from localStorage when available.
-  const [mode, setModeState] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return "system";
+  // SSR-safe: the first render (server AND client hydration pass) always uses
+  // "system", so the initial HTML is deterministic and identical on both sides.
+  // The persisted preference is applied after mount, avoiding hydration
+  // mismatches on the toggle icon. The no-flash inline script in the layout
+  // still paints the correct theme class before hydration (no visual flash).
+  const [mode, setModeState] = useState<ThemeMode>("system");
+
+  // Hydrate the persisted mode after mount (client-only).
+  useEffect(() => {
     const stored = window.localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-    return stored === "light" || stored === "dark" || stored === "system" ? stored : "system";
-  });
+    if (stored === "light" || stored === "dark" || stored === "system") {
+      setModeState(stored);
+    }
+  }, []);
 
   const [systemDark, setSystemDark] = useState(false);
 
