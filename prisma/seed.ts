@@ -23,14 +23,28 @@ async function main() {
   console.log("🌱 Starting seed...");
 
   // 1. Create Admin User (Idempotent)
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@acaiaba.com";
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  // No default credential on purpose. A seed that silently provisions an admin
+  // from a password written in the repository is how a known credential ends up on
+  // a real database. Both values must be supplied by the operator.
+  if (!adminEmail || !adminPassword) {
+    throw new Error(
+      "ADMIN_EMAIL and ADMIN_PASSWORD must be defined to seed an administrator.\n" +
+        "Set them in your .env, e.g.:\n" +
+        '  ADMIN_EMAIL="voce@dominio.com"\n' +
+        '  ADMIN_PASSWORD="..."   # generate one with: openssl rand -base64 24'
+    );
+  }
+
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
   });
 
   let adminUser;
   if (!existingAdmin) {
-    const passwordHash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || "acaiaba_admin_2026", 10);
+    const passwordHash = bcrypt.hashSync(adminPassword, 10);
     adminUser = await prisma.user.create({
       data: {
         name: "Administrador ACAIABA",

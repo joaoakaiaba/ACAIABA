@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "crypto";
 import {
   PaymentGateway,
   CreatePaymentInput,
@@ -46,25 +47,49 @@ export class SimulatedPixGateway implements PaymentGateway {
     headers: Record<string, string | undefined>
   ): Promise<WebhookEvent | null> {
     const secret = process.env.PAYMENT_WEBHOOK_SECRET;
-    if (secret) {
-      const signature = headers["x-sim-signature"];
-      if (signature !== secret) return null;
+
+    // This endpoint is public and its events flip orders to PAID, so signature
+    // verification can never be optional. Without a configured secret the check
+    // below would be skipped entirely and anyone could confirm a payment (the
+    // amount check in paymentService is a second line of defence, not a substitute:
+    // the transactionId is returned to the customer by the order API). In
+    // production a missing secret therefore rejects everything.
+    if (!secret) {
+      return process.env.NODE_ENV === "production" ? null : parseBody(raw);
     }
 
-    const body = raw as Record<string, unknown> | null;
-    if (!body || typeof body !== "object") return null;
-    const providerPaymentId = body.providerPaymentId;
-    const event = body.event;
-    if (typeof providerPaymentId !== "string" || typeof event !== "string") return null;
-
-    return {
-      provider: "simulated",
-      providerPaymentId,
-      event,
-      amountCents: typeof body.amountCents === "number" ? body.amountCents : undefined,
-      currency: typeof body.currency === "string" ? body.currency : undefined,
-      status: typeof body.status === "string" ? body.status : undefined,
-      raw: body,
-    };
+    if (!timingSafeEqualStr(headers["x-sim-signature"], secret)) return null;
+    return parseBody(raw);
   }
+}
+
+// Payload parsing, kept out of the signature branch so the "no secret configured"
+// development path behaves exactly as it did before this hardening.
+function parseBody(raw: unknown): WebhookEvent | null {
+  const body = raw as Record<string, unknown> | null;
+  if (!body || typeof body !== "object") return null;
+  const providerPaymentId = body.providerPaymentId;
+  const event = body.event;
+  if (typeof providerPaymentId !== "string" || typeof event !== "string") return null;
+
+  return {
+    provider: "simulated",
+    providerPaymentId,
+    event,
+    amountCents: typeof body.amountCents === "number" ? body.amountCents : undefined,
+    currency: typeof body.currency === "string" ? body.currency : undefined,
+    status: typeof body.status === "string" ? body.status : undefined,
+    raw: body,
+  };
+}
+
+// Constant-time comparison so the signature check does not leak the secret
+// byte-by-byte through response timing. timingSafeEqual requires equal-length
+// buffers, so a length mismatch is rejected without comparing.
+function timingSafeEqualStr(candidate: string | undefined, expected: string): boolean {
+  if (typeof candidate !== "string") return false;
+  const a = Buffer.from(candidate, "utf8");
+  const b = Buffer.from(expected, "utf8");
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }

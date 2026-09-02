@@ -59,6 +59,30 @@ export async function processCheckout(input: CheckoutInput) {
     );
   }
 
+  // ---- Validation of the financial inputs that come from the caller ----
+  // processCheckout is a Server Action, so an authenticated client can invoke it
+  // with arbitrary arguments. Prices are always re-read from the database below,
+  // but `quantity` and `shippingCost` are arithmetic inputs to the total: without
+  // these checks a caller could send quantity: -5 (negative line totals) or
+  // shippingCost: -10000 (total clamped to zero) and get an order for nothing.
+  if (typeof shippingCost !== "number" || !Number.isFinite(shippingCost) || shippingCost < 0) {
+    throw new AppError("VALIDATION", "Valor de frete inválido.");
+  }
+
+  for (const item of items) {
+    if (
+      typeof item?.quantity !== "number" ||
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1 ||
+      item.quantity > 999
+    ) {
+      throw new AppError("VALIDATION", "Quantidade de item inválida.");
+    }
+    if (typeof item?.variantId !== "string" || item.variantId.length === 0) {
+      throw new AppError("VALIDATION", "Item de carrinho inválido.");
+    }
+  }
+
   // Run everything inside an atomic transaction to ensure absolute financial and inventory integrity
   try {
     const result = await prisma.$transaction(async (tx) => {

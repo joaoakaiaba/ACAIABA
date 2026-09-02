@@ -1,6 +1,11 @@
 import { MetadataRoute } from "next";
 import { prisma } from "@/lib/config/prisma";
 
+// Metadata routes are static by default; without this the product URLs captured at
+// build time would never refresh (prerender-manifest shows
+// `initialRevalidateSeconds: false`). An hour is plenty for a sitemap.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 

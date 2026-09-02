@@ -3,19 +3,23 @@ import { Role } from "@prisma/client";
 
 const TOKEN_EXPIRY = "7d"; // Session valid for 7 days
 
-// In production a strong JWT_SECRET is mandatory. The hardcoded fallback exists
-// only to keep local development convenient and must never be used in production.
-const FALLBACK_SECRET = "acaiaba_fallback_secret_key_2026";
-
+// The signing secret comes ONLY from the environment. A default committed to the
+// repository is a credential anyone can read, so there is deliberately no
+// fallback here — in any environment. If it is missing the module throws at load
+// time instead of silently signing sessions with a predictable key.
 const configuredSecret = process.env.JWT_SECRET;
 
 if (!configuredSecret) {
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("JWT_SECRET must be defined in environment variables for production.");
-  }
+  throw new Error(
+    "JWT_SECRET is not defined. Copy .env.example to .env and set a strong value " +
+      "(generate one with: openssl rand -base64 48)."
+  );
 }
 
-const JWT_SECRET = configuredSecret || FALLBACK_SECRET;
+// Assigned after the guard so the declared type is a definite `string`; keeping it
+// as `process.env.JWT_SECRET` would leave `string | undefined` and break the
+// jsonwebtoken overloads inside the functions below.
+const JWT_SECRET: string = configuredSecret;
 
 export interface UserSessionPayload {
   userId: string;

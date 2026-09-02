@@ -3,6 +3,13 @@ import { ArrowRight, Truck, ShieldCheck, MapPin } from "lucide-react";
 import MinimalProductCard from "@/components/ui/MinimalProductCard";
 import NewsletterForm from "@/components/ui/NewsletterForm";
 
+// The home page reads products, prices and stock from PostgreSQL but uses no
+// request-scoped API (no cookies/searchParams), so Next.js prerenders it ONCE at
+// build time and — confirmed in .next/prerender-manifest.json — keeps
+// `initialRevalidateSeconds: false`, i.e. it would serve that frozen HTML until the
+// next deploy. ISR (60s) keeps it served statically while the catalog refreshes.
+export const revalidate = 60;
+
 async function getHomePageData() {
   try {
     // Dynamic import: if the Prisma client cannot be loaded (e.g. infra

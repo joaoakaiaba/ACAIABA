@@ -26,8 +26,21 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+# Everything matching .env* is ignored EXCEPT the template. Without the explicit
+# `.env.*` rule, .env.production / .env.development / .env.test are NOT covered by
+# the two patterns above and would be committed with real credentials in them.
 .env
-.env*.local
+.env.*
+!.env.example
+
+# Tooling / machine-local artifacts that are not part of the project.
+# (Note: gitignore does NOT support trailing comments — a `#` only starts a
+# comment at the beginning of a line, so each pattern sits on its own line.)
+# Next.js + create-next-app telemetry, contains a machine anonymousId:
+.config/
+# Agent skill documentation, not required to run the project:
+.agents/
+skills-lock.json
 
 # vercel
 .vercel
